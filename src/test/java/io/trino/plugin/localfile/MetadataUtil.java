@@ -21,10 +21,9 @@ import static io.trino.spi.type.TimestampWithTimeZoneType.createTimestampWithTim
 import static io.trino.spi.type.VarcharType.VARCHAR;
 import static io.trino.spi.type.VarcharType.createUnboundedVarcharType;
 
-final class MetadataUtil
-{
-    private MetadataUtil()
-    {
+final class MetadataUtil {
+
+    private MetadataUtil() {
     }
 
     public static final JsonCodec<LocalFileColumnHandle> COLUMN_CODEC;
@@ -38,9 +37,8 @@ final class MetadataUtil
         TABLE_CODEC = codecFactory.jsonCodec(LocalFileTableHandle.class);
     }
 
-    public static final class TestingTypeDeserializer
-            extends FromStringDeserializer<Type>
-    {
+    public static final class TestingTypeDeserializer extends FromStringDeserializer<Type> {
+
         private final Map<TypeId, Type> types = new ImmutableMap.Builder<TypeId, Type>()
                 .put(BOOLEAN.getTypeId(), BOOLEAN)
                 .put(BIGINT.getTypeId(), BIGINT)
@@ -50,14 +48,12 @@ final class MetadataUtil
                 .put(VARCHAR.getTypeId(), createUnboundedVarcharType())
                 .build();
 
-        public TestingTypeDeserializer()
-        {
+        public TestingTypeDeserializer() {
             super(Type.class);
         }
 
         @Override
-        protected Type _deserialize(String value, DeserializationContext context)
-        {
+        protected Type _deserialize(String value, DeserializationContext context) {
             Type type = types.get(TypeId.of(value));
             if (type == null) {
                 throw new IllegalArgumentException("Unknown type " + value);
@@ -65,4 +61,5 @@ final class MetadataUtil
             return type;
         }
     }
+
 }

@@ -10,24 +10,19 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Map;
 
-import static io.airlift.configuration.testing.ConfigAssertions.assertFullMapping;
-import static io.airlift.configuration.testing.ConfigAssertions.assertRecordedDefaults;
-import static io.airlift.configuration.testing.ConfigAssertions.recordDefaults;
+import static io.airlift.configuration.testing.ConfigAssertions.*;
 
-public class TestLocalFileConfig
-{
+public class TestLocalFileConfig {
+
     @Test
-    public void testDefaults()
-    {
+    public void testDefaults() {
         assertRecordedDefaults(recordDefaults(LocalFileConfig.class)
                 .setHttpRequestLogLocation("var/log/http-request.log")
                 .setHttpRequestLogFileNamePattern(null));
     }
 
     @Test
-    public void testExplicitPropertyMappings()
-            throws IOException
-    {
+    public void testExplicitPropertyMappings() throws IOException {
         Path httpRequestLogFile = Files.createTempFile(null, null);
 
         Map<String, String> properties = new ImmutableMap.Builder<String, String>()
@@ -41,4 +36,5 @@ public class TestLocalFileConfig
 
         assertFullMapping(properties, expected);
     }
+
 }

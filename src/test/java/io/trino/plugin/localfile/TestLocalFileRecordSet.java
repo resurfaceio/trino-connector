@@ -16,13 +16,12 @@ import static io.trino.testing.TestingConnectorSession.SESSION;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-public class TestLocalFileRecordSet
-{
+public class TestLocalFileRecordSet {
+
     private static final HostAddress address = HostAddress.fromParts("localhost", 1234);
 
     @Test
-    public void testSimpleCursor()
-    {
+    public void testSimpleCursor() {
         String location = "example-data";
         LocalFileTables localFileTables = new LocalFileTables(new LocalFileConfig().setHttpRequestLogLocation(getResourceFilePath(location)));
         LocalFileMetadata metadata = new LocalFileMetadata(localFileTables);
@@ -31,8 +30,7 @@ public class TestLocalFileRecordSet
     }
 
     @Test
-    public void testGzippedData()
-    {
+    public void testGzippedData() {
         String location = "example-gzipped-data";
         LocalFileTables localFileTables = new LocalFileTables(new LocalFileConfig().setHttpRequestLogLocation(getResourceFilePath(location)));
         LocalFileMetadata metadata = new LocalFileMetadata(localFileTables);
@@ -40,8 +38,7 @@ public class TestLocalFileRecordSet
         assertData(localFileTables, metadata);
     }
 
-    private static void assertData(LocalFileTables localFileTables, LocalFileMetadata metadata)
-    {
+    private static void assertData(LocalFileTables localFileTables, LocalFileMetadata metadata) {
         LocalFileTableHandle tableHandle = new LocalFileTableHandle(getSchemaTableName(), OptionalInt.of(0), OptionalInt.of(-1));
         List<LocalFileColumnHandle> columnHandles = metadata.getColumnHandles(SESSION, tableHandle)
                 .values().stream().map(column -> (LocalFileColumnHandle) column)
@@ -55,7 +52,6 @@ public class TestLocalFileRecordSet
             assertEquals(cursor.getType(i), columnHandles.get(i).getColumnType());
         }
 
-        // test one row
         assertTrue(cursor.advanceNextPosition());
         assertEquals(cursor.getSlice(0).toStringUtf8(), address.toString());
         assertEquals(cursor.getSlice(2).toStringUtf8(), "127.0.0.1");
@@ -83,8 +79,8 @@ public class TestLocalFileRecordSet
         assertEquals(cursor.getSlice(11).toStringUtf8(), "a7229d56-5cbd-4e23-81ff-312ba6be0f12");
     }
 
-    private String getResourceFilePath(String fileName)
-    {
+    private String getResourceFilePath(String fileName) {
         return this.getClass().getClassLoader().getResource(fileName).getPath();
     }
+
 }

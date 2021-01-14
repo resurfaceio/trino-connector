@@ -16,8 +16,8 @@ import static io.trino.spi.type.TimestampWithTimeZoneType.createTimestampWithTim
 import static io.trino.spi.type.VarcharType.createUnboundedVarcharType;
 import static org.testng.Assert.assertEquals;
 
-public class TestLocalFileColumnHandle
-{
+public class TestLocalFileColumnHandle {
+
     private final List<LocalFileColumnHandle> columnHandle = ImmutableList.of(
             new LocalFileColumnHandle("columnName", createUnboundedVarcharType(), 0),
             new LocalFileColumnHandle("columnName", BIGINT, 0),
@@ -27,12 +27,12 @@ public class TestLocalFileColumnHandle
             new LocalFileColumnHandle("columnName", BOOLEAN, 0));
 
     @Test
-    public void testJsonRoundTrip()
-    {
+    public void testJsonRoundTrip() {
         for (LocalFileColumnHandle handle : columnHandle) {
             String json = COLUMN_CODEC.toJson(handle);
             LocalFileColumnHandle copy = COLUMN_CODEC.fromJson(json);
             assertEquals(copy, handle);
         }
     }
+
 }

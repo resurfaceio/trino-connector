@@ -10,14 +10,13 @@ import org.testng.annotations.Test;
 import static io.airlift.json.JsonCodec.jsonCodec;
 import static org.testng.Assert.assertEquals;
 
-public class TestLocalFileSplit
-{
+public class TestLocalFileSplit {
+
     private final HostAddress address = HostAddress.fromParts("localhost", 1234);
     private final LocalFileSplit split = new LocalFileSplit(address);
 
     @Test
-    public void testJsonRoundTrip()
-    {
+    public void testJsonRoundTrip() {
         JsonCodec<LocalFileSplit> codec = jsonCodec(LocalFileSplit.class);
         String json = codec.toJson(split);
         LocalFileSplit copy = codec.fromJson(json);
@@ -27,4 +26,5 @@ public class TestLocalFileSplit
         assertEquals(copy.getAddresses(), ImmutableList.of(address));
         assertEquals(copy.isRemotelyAccessible(), false);
     }
+
 }
