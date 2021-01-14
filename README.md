@@ -9,5 +9,6 @@ connector.name=resurface
 mvn package
 
 3. Copy output to Trino
-cp ./target/resurfaceio-trino-connector $TRINO_HOME/plugin/resurface
+rm -rf $TRINO_HOME/plugin/resurface
+cp ./target/resurfaceio-trino-connector-2.x.x $TRINO_HOME/plugin/resurface
 ```
