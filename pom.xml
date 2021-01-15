@@ -1,5 +1,7 @@
 <?xml version="1.0"?>
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
 
     <groupId>io.resurface</groupId>
@@ -8,97 +10,8 @@
     <name>resurfaceio-trino-connector</name>
     <description>Custom connector for Trino</description>
     <url>https://github.com/resurfaceio/trino-connector</url>
+
     <packaging>trino-plugin</packaging>
-
-    <properties>
-        <air.main.basedir>${project.basedir}</air.main.basedir>
-        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <project.build.targetJdk>11</project.build.targetJdk>
-        <maven.compiler.source>11</maven.compiler.source>
-        <maven.compiler.target>11</maven.compiler.target>
-    </properties>
-
-    <dependencies>
-        <dependency>
-            <groupId>io.airlift</groupId>
-            <artifactId>bootstrap</artifactId>
-            <version>202</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.airlift</groupId>
-            <artifactId>configuration</artifactId>
-            <version>202</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.airlift</groupId>
-            <artifactId>json</artifactId>
-            <version>202</version>
-        </dependency>
-
-        <dependency>
-            <groupId>com.google.inject</groupId>
-            <artifactId>guice</artifactId>
-            <version>5.0.0-BETA-1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>javax.inject</groupId>
-            <artifactId>javax.inject</artifactId>
-            <version>1</version>
-        </dependency>
-
-        <dependency>
-            <groupId>io.resurface</groupId>
-            <artifactId>resurfaceio-binfiles</artifactId>
-            <version>RELEASE</version>
-        </dependency>
-
-        <!-- Trino SPI -->
-        <dependency>
-            <groupId>io.trino</groupId>
-            <artifactId>trino-spi</artifactId>
-            <version>351</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.airlift</groupId>
-            <artifactId>slice</artifactId>
-            <version>0.40</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>com.fasterxml.jackson.core</groupId>
-            <artifactId>jackson-annotations</artifactId>
-            <version>2.11.1</version>
-            <scope>provided</scope>
-        </dependency>
-
-        <!-- for testing -->
-        <dependency>
-            <groupId>io.trino</groupId>
-            <artifactId>trino-main</artifactId>
-            <version>351</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>io.trino</groupId>
-            <artifactId>trino-testing</artifactId>
-            <version>351</version>
-            <scope>test</scope>
-        </dependency>
-
-        <dependency>
-            <groupId>org.testng</groupId>
-            <artifactId>testng</artifactId>
-            <version>7.3.0</version>
-            <scope>test</scope>
-        </dependency>
-    </dependencies>
 
     <build>
         <plugins>
@@ -145,6 +58,109 @@
         </plugins>
     </build>
 
+    <dependencies>
+        <dependency>
+            <groupId>io.airlift</groupId>
+            <artifactId>bootstrap</artifactId>
+            <version>202</version>
+        </dependency>
+        <dependency>
+            <groupId>io.airlift</groupId>
+            <artifactId>configuration</artifactId>
+            <version>202</version>
+        </dependency>
+        <dependency>
+            <groupId>io.airlift</groupId>
+            <artifactId>json</artifactId>
+            <version>202</version>
+        </dependency>
+        <dependency>
+            <groupId>com.google.inject</groupId>
+            <artifactId>guice</artifactId>
+            <version>5.0.0-BETA-1</version>
+        </dependency>
+        <dependency>
+            <groupId>javax.inject</groupId>
+            <artifactId>javax.inject</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>io.resurface</groupId>
+            <artifactId>resurfaceio-binfiles</artifactId>
+            <version>RELEASE</version>
+        </dependency>
+
+        <!-- Trino SPI -->
+        <dependency>
+            <groupId>io.trino</groupId>
+            <artifactId>trino-spi</artifactId>
+            <version>351</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.airlift</groupId>
+            <artifactId>slice</artifactId>
+            <version>0.40</version>
+            <scope>provided</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.fasterxml.jackson.core</groupId>
+            <artifactId>jackson-annotations</artifactId>
+            <version>2.11.1</version>
+            <scope>provided</scope>
+        </dependency>
+
+        <!-- for testing -->
+        <dependency>
+            <groupId>io.trino</groupId>
+            <artifactId>trino-main</artifactId>
+            <version>351</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>io.trino</groupId>
+            <artifactId>trino-testing</artifactId>
+            <version>351</version>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.testng</groupId>
+            <artifactId>testng</artifactId>
+            <version>7.3.0</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <developers>
+        <developer>
+            <id>RobDickinson</id>
+            <name>Rob Dickinson</name>
+            <url>https://github.com/RobDickinson</url>
+            <organization>resurface.io</organization>
+            <organizationUrl>https://resurface.io</organizationUrl>
+            <roles>
+                <role>architect</role>
+                <role>developer</role>
+            </roles>
+            <timezone>America/Denver</timezone>
+            <properties>
+                <picUrl>https://resurface.io/headshot_rob_128.jpg</picUrl>
+            </properties>
+        </developer>
+    </developers>
+
+    <organization>
+        <name>resurface.io</name>
+        <url>https://resurface.io</url>
+    </organization>
+
+    <properties>
+        <air.main.basedir>${project.basedir}</air.main.basedir>
+        <maven.compiler.source>11</maven.compiler.source>
+        <maven.compiler.target>11</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    </properties>
+
     <repositories>
         <repository>
             <id>resurfacelabs-internal</id>
@@ -159,5 +175,11 @@
             </snapshots>
         </repository>
     </repositories>
+
+    <scm>
+        <connection>scm:git:git@github.com:resurfaceio/trino-connector.git</connection>
+        <developerConnection>scm:git:git@github.com:resurfaceio/trino-connector.git</developerConnection>
+        <url>scm:git:git@github.com:resurfaceio/trino-connector.git</url>
+    </scm>
 
 </project>
