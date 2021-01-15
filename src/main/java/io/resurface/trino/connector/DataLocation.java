@@ -1,6 +1,6 @@
 // © 2016-2021 Resurface Labs Inc.
 
-package io.trino.plugin.localfile;
+package io.resurface.trino.connector;
 
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static io.trino.plugin.localfile.LocalFileErrorCode.LOCAL_FILE_FILESYSTEM_ERROR;
-import static io.trino.plugin.localfile.LocalFileErrorCode.LOCAL_FILE_NO_FILES;
+import static io.resurface.trino.connector.LocalFileErrorCode.LOCAL_FILE_FILESYSTEM_ERROR;
+import static io.resurface.trino.connector.LocalFileErrorCode.LOCAL_FILE_NO_FILES;
 import static java.nio.file.Files.newDirectoryStream;
 import static java.util.Objects.requireNonNull;
 

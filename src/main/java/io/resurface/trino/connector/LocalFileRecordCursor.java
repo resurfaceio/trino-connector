@@ -1,6 +1,6 @@
 // © 2016-2021 Resurface Labs Inc.
 
-package io.trino.plugin.localfile;
+package io.resurface.trino.connector;
 
 import com.google.common.base.Joiner;
 import com.google.common.base.Splitter;
@@ -25,8 +25,6 @@ import java.util.zip.GZIPInputStream;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static io.trino.plugin.localfile.LocalFileColumnHandle.SERVER_ADDRESS_ORDINAL_POSITION;
-import static io.trino.plugin.localfile.LocalFileErrorCode.LOCAL_FILE_READ_ERROR;
 import static io.trino.spi.type.BigintType.BIGINT;
 import static io.trino.spi.type.BooleanType.BOOLEAN;
 import static io.trino.spi.type.DateTimeEncoding.packDateTimeWithZone;
@@ -146,7 +144,7 @@ public class LocalFileRecordCursor implements RecordCursor {
     private String getFieldValue(int field) {
         checkState(fields != null, "Cursor has not been advanced yet");
         int columnIndex = fieldToColumnIndex[field];
-        if (columnIndex == SERVER_ADDRESS_ORDINAL_POSITION) return address.toString();
+        if (columnIndex == LocalFileColumnHandle.SERVER_ADDRESS_ORDINAL_POSITION) return address.toString();
         if (columnIndex >= fields.size()) return null;
         return fields.get(columnIndex);
     }
@@ -253,7 +251,7 @@ public class LocalFileRecordCursor implements RecordCursor {
                 int magic = inputFile.read() & 0xff | ((inputFile.read() << 8) & 0xff00);
                 return magic == GZIP_MAGIC;
             } catch (IOException e) {
-                throw new TrinoException(LOCAL_FILE_READ_ERROR, "Error reading file: " + file.getName(), e);
+                throw new TrinoException(LocalFileErrorCode.LOCAL_FILE_READ_ERROR, "Error reading file: " + file.getName(), e);
             }
         }
 

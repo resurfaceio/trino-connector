@@ -1,6 +1,6 @@
 // © 2016-2021 Resurface Labs Inc.
 
-package io.trino.plugin.localfile;
+package io.resurface.trino.connector;
 
 import com.google.common.cache.CacheBuilder;
 import com.google.common.cache.CacheLoader;
@@ -21,9 +21,7 @@ import java.util.OptionalInt;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Throwables.throwIfInstanceOf;
-import static io.trino.plugin.localfile.LocalFileMetadata.PRESTO_LOGS_SCHEMA;
-import static io.trino.plugin.localfile.LocalFileMetadata.SERVER_ADDRESS_COLUMN;
-import static io.trino.plugin.localfile.LocalFileTables.HttpRequestLogTable.*;
+import static io.resurface.trino.connector.LocalFileTables.HttpRequestLogTable.*;
 import static io.trino.spi.type.BigintType.BIGINT;
 import static io.trino.spi.type.TimestampWithTimeZoneType.createTimestampWithTimeZoneType;
 import static io.trino.spi.type.VarcharType.createUnboundedVarcharType;
@@ -92,7 +90,7 @@ public class LocalFileTables {
     public static final class HttpRequestLogTable {
 
         private static final List<ColumnMetadata> COLUMNS = ImmutableList.of(
-                SERVER_ADDRESS_COLUMN,
+                LocalFileMetadata.SERVER_ADDRESS_COLUMN,
                 new ColumnMetadata("timestamp", createTimestampWithTimeZoneType(3)),
                 new ColumnMetadata("client_address", createUnboundedVarcharType()),
                 new ColumnMetadata("method", createUnboundedVarcharType()),
@@ -112,7 +110,7 @@ public class LocalFileTables {
         }
 
         public static SchemaTableName getSchemaTableName() {
-            return new SchemaTableName(PRESTO_LOGS_SCHEMA, TABLE_NAME);
+            return new SchemaTableName(LocalFileMetadata.PRESTO_LOGS_SCHEMA, TABLE_NAME);
         }
 
         public static OptionalInt getServerAddressColumn() {

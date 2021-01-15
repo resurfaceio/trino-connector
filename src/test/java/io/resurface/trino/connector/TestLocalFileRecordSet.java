@@ -1,6 +1,6 @@
 // © 2016-2021 Resurface Labs Inc.
 
-package io.trino.plugin.localfile;
+package io.resurface.trino.connector;
 
 import io.trino.spi.HostAddress;
 import io.trino.spi.connector.RecordCursor;
@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
-import static io.trino.plugin.localfile.LocalFileTables.HttpRequestLogTable.getSchemaTableName;
+import static io.resurface.trino.connector.LocalFileTables.HttpRequestLogTable.getSchemaTableName;
 import static io.trino.testing.TestingConnectorSession.SESSION;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;

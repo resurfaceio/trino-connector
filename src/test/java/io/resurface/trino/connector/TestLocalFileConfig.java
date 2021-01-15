@@ -1,6 +1,6 @@
 // © 2016-2021 Resurface Labs Inc.
 
-package io.trino.plugin.localfile;
+package io.resurface.trino.connector;
 
 import com.google.common.collect.ImmutableMap;
 import org.testng.annotations.Test;
