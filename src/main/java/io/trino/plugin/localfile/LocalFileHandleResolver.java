@@ -2,36 +2,28 @@
 
 package io.trino.plugin.localfile;
 
-import io.trino.spi.connector.ColumnHandle;
-import io.trino.spi.connector.ConnectorHandleResolver;
-import io.trino.spi.connector.ConnectorSplit;
-import io.trino.spi.connector.ConnectorTableHandle;
-import io.trino.spi.connector.ConnectorTransactionHandle;
+import io.trino.spi.connector.*;
 
-public class LocalFileHandleResolver
-        implements ConnectorHandleResolver
-{
-    @Override
-    public Class<? extends ConnectorTableHandle> getTableHandleClass()
-    {
-        return LocalFileTableHandle.class;
-    }
+public class LocalFileHandleResolver implements ConnectorHandleResolver {
 
     @Override
-    public Class<? extends ColumnHandle> getColumnHandleClass()
-    {
+    public Class<? extends ColumnHandle> getColumnHandleClass() {
         return LocalFileColumnHandle.class;
     }
 
     @Override
-    public Class<? extends ConnectorSplit> getSplitClass()
-    {
+    public Class<? extends ConnectorSplit> getSplitClass() {
         return LocalFileSplit.class;
     }
 
     @Override
-    public Class<? extends ConnectorTransactionHandle> getTransactionHandleClass()
-    {
+    public Class<? extends ConnectorTableHandle> getTableHandleClass() {
+        return LocalFileTableHandle.class;
+    }
+
+    @Override
+    public Class<? extends ConnectorTransactionHandle> getTransactionHandleClass() {
         return LocalFileTransactionHandle.class;
     }
+
 }

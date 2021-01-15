@@ -15,16 +15,9 @@ import java.util.OptionalInt;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static java.util.Objects.requireNonNull;
 
-public class LocalFileTableHandle
-        implements ConnectorTableHandle
-{
-    private final SchemaTableName schemaTableName;
-    private final OptionalInt timestampColumn;
-    private final OptionalInt serverAddressColumn;
-    private final TupleDomain<ColumnHandle> constraint;
+public class LocalFileTableHandle implements ConnectorTableHandle {
 
-    public LocalFileTableHandle(SchemaTableName schemaTableName, OptionalInt timestampColumn, OptionalInt serverAddressColumn)
-    {
+    public LocalFileTableHandle(SchemaTableName schemaTableName, OptionalInt timestampColumn, OptionalInt serverAddressColumn) {
         this(schemaTableName, timestampColumn, serverAddressColumn, TupleDomain.all());
     }
 
@@ -33,47 +26,22 @@ public class LocalFileTableHandle
             @JsonProperty("schemaTableName") SchemaTableName schemaTableName,
             @JsonProperty("timestampColumn") OptionalInt timestampColumn,
             @JsonProperty("serverAddressColumn") OptionalInt serverAddressColumn,
-            @JsonProperty("constraint") TupleDomain<ColumnHandle> constraint)
-    {
+            @JsonProperty("constraint") TupleDomain<ColumnHandle> constraint) {
         this.schemaTableName = requireNonNull(schemaTableName, "schemaTableName is null");
         this.timestampColumn = requireNonNull(timestampColumn, "timestampColumn is null");
         this.serverAddressColumn = requireNonNull(serverAddressColumn, "serverAddressColumn is null");
         this.constraint = requireNonNull(constraint, "constraint is null");
     }
 
-    @JsonProperty
-    public SchemaTableName getSchemaTableName()
-    {
-        return schemaTableName;
-    }
-
-    @JsonProperty
-    public OptionalInt getTimestampColumn()
-    {
-        return timestampColumn;
-    }
-
-    @JsonProperty
-    public OptionalInt getServerAddressColumn()
-    {
-        return serverAddressColumn;
-    }
-
-    @JsonProperty
-    public TupleDomain<ColumnHandle> getConstraint()
-    {
-        return constraint;
-    }
+    private final TupleDomain<ColumnHandle> constraint;
+    private final SchemaTableName schemaTableName;
+    private final OptionalInt serverAddressColumn;
+    private final OptionalInt timestampColumn;
 
     @Override
-    public boolean equals(Object o)
-    {
-        if (this == o) {
-            return true;
-        }
-        if (o == null || getClass() != o.getClass()) {
-            return false;
-        }
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
         LocalFileTableHandle that = (LocalFileTableHandle) o;
         return Objects.equals(schemaTableName, that.schemaTableName) &&
                 Objects.equals(timestampColumn, that.timestampColumn) &&
@@ -82,16 +50,33 @@ public class LocalFileTableHandle
     }
 
     @Override
-    public int hashCode()
-    {
+    public int hashCode() {
         return Objects.hash(schemaTableName, timestampColumn, serverAddressColumn, constraint);
     }
 
-    @Override
-    public String toString()
-    {
-        return toStringHelper(this)
-                .add("schemaTableName", schemaTableName)
-                .toString();
+    @JsonProperty
+    public TupleDomain<ColumnHandle> getConstraint() {
+        return constraint;
     }
+
+    @JsonProperty
+    public SchemaTableName getSchemaTableName() {
+        return schemaTableName;
+    }
+
+    @JsonProperty
+    public OptionalInt getServerAddressColumn() {
+        return serverAddressColumn;
+    }
+
+    @JsonProperty
+    public OptionalInt getTimestampColumn() {
+        return timestampColumn;
+    }
+
+    @Override
+    public String toString() {
+        return toStringHelper(this).add("schemaTableName", schemaTableName).toString();
+    }
+
 }

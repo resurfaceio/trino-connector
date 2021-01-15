@@ -13,7 +13,6 @@ import io.trino.spi.connector.ColumnMetadata;
 import io.trino.spi.connector.SchemaTableName;
 
 import javax.inject.Inject;
-
 import java.io.File;
 import java.util.List;
 import java.util.Map;
@@ -24,25 +23,16 @@ import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Throwables.throwIfInstanceOf;
 import static io.trino.plugin.localfile.LocalFileMetadata.PRESTO_LOGS_SCHEMA;
 import static io.trino.plugin.localfile.LocalFileMetadata.SERVER_ADDRESS_COLUMN;
-import static io.trino.plugin.localfile.LocalFileTables.HttpRequestLogTable.getSchemaTableName;
-import static io.trino.plugin.localfile.LocalFileTables.HttpRequestLogTable.getServerAddressColumn;
-import static io.trino.plugin.localfile.LocalFileTables.HttpRequestLogTable.getTimestampColumn;
+import static io.trino.plugin.localfile.LocalFileTables.HttpRequestLogTable.*;
 import static io.trino.spi.type.BigintType.BIGINT;
 import static io.trino.spi.type.TimestampWithTimeZoneType.createTimestampWithTimeZoneType;
 import static io.trino.spi.type.VarcharType.createUnboundedVarcharType;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class LocalFileTables
-{
-    private final Map<SchemaTableName, DataLocation> tableDataLocations;
-    private final Map<SchemaTableName, LocalFileTableHandle> tables;
-    private final Map<SchemaTableName, List<ColumnMetadata>> tableColumns;
-
-    private final LoadingCache<SchemaTableName, List<File>> cachedFiles;
+public class LocalFileTables {
 
     @Inject
-    public LocalFileTables(LocalFileConfig config)
-    {
+    public LocalFileTables(LocalFileConfig config) {
         ImmutableMap.Builder<SchemaTableName, DataLocation> dataLocationBuilder = ImmutableMap.builder();
         ImmutableMap.Builder<SchemaTableName, LocalFileTableHandle> tablesBuilder = ImmutableMap.builder();
         ImmutableMap.Builder<SchemaTableName, List<ColumnMetadata>> tableColumnsBuilder = ImmutableMap.builder();
@@ -72,35 +62,35 @@ public class LocalFileTables
                 .build(CacheLoader.from(key -> tableDataLocations.get(key).files()));
     }
 
-    public LocalFileTableHandle getTable(SchemaTableName tableName)
-    {
-        return tables.get(tableName);
-    }
+    private final LoadingCache<SchemaTableName, List<File>> cachedFiles;
+    private final Map<SchemaTableName, List<ColumnMetadata>> tableColumns;
+    private final Map<SchemaTableName, DataLocation> tableDataLocations;
+    private final Map<SchemaTableName, LocalFileTableHandle> tables;
 
-    public List<SchemaTableName> getTables()
-    {
-        return ImmutableList.copyOf(tables.keySet());
-    }
-
-    public List<ColumnMetadata> getColumns(LocalFileTableHandle tableHandle)
-    {
+    public List<ColumnMetadata> getColumns(LocalFileTableHandle tableHandle) {
         checkArgument(tableColumns.containsKey(tableHandle.getSchemaTableName()), "Table '%s' not registered", tableHandle.getSchemaTableName());
         return tableColumns.get(tableHandle.getSchemaTableName());
     }
 
-    public List<File> getFiles(SchemaTableName table)
-    {
+    public List<File> getFiles(SchemaTableName table) {
         try {
             return cachedFiles.getUnchecked(table);
-        }
-        catch (UncheckedExecutionException e) {
+        } catch (UncheckedExecutionException e) {
             throwIfInstanceOf(e.getCause(), TrinoException.class);
             throw e;
         }
     }
 
-    public static final class HttpRequestLogTable
-    {
+    public LocalFileTableHandle getTable(SchemaTableName tableName) {
+        return tables.get(tableName);
+    }
+
+    public List<SchemaTableName> getTables() {
+        return ImmutableList.copyOf(tables.keySet());
+    }
+
+    public static final class HttpRequestLogTable {
+
         private static final List<ColumnMetadata> COLUMNS = ImmutableList.of(
                 SERVER_ADDRESS_COLUMN,
                 new ColumnMetadata("timestamp", createTimestampWithTimeZoneType(3)),
@@ -117,24 +107,22 @@ public class LocalFileTables
 
         private static final String TABLE_NAME = "http_request_log";
 
-        public static List<ColumnMetadata> getColumns()
-        {
+        public static List<ColumnMetadata> getColumns() {
             return COLUMNS;
         }
 
-        public static SchemaTableName getSchemaTableName()
-        {
+        public static SchemaTableName getSchemaTableName() {
             return new SchemaTableName(PRESTO_LOGS_SCHEMA, TABLE_NAME);
         }
 
-        public static OptionalInt getTimestampColumn()
-        {
+        public static OptionalInt getServerAddressColumn() {
+            return OptionalInt.of(-1);
+        }
+
+        public static OptionalInt getTimestampColumn() {
             return OptionalInt.of(0);
         }
 
-        public static OptionalInt getServerAddressColumn()
-        {
-            return OptionalInt.of(-1);
-        }
     }
+
 }

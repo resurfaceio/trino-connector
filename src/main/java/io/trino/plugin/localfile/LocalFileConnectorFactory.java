@@ -4,7 +4,6 @@ package io.trino.plugin.localfile;
 
 import com.google.inject.Injector;
 import io.airlift.bootstrap.Bootstrap;
-import io.resurface.binfiles.BinaryHttpMessage;
 import io.trino.spi.NodeManager;
 import io.trino.spi.connector.Connector;
 import io.trino.spi.connector.ConnectorContext;
@@ -15,25 +14,20 @@ import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 
-public class LocalFileConnectorFactory
-        implements ConnectorFactory
-{
-    @Override
-    public String getName()
-    {
-        new BinaryHttpMessage(); // todo remove this, just testing classloader
-        return "resurface";
-    }
+public class LocalFileConnectorFactory implements ConnectorFactory {
 
     @Override
-    public ConnectorHandleResolver getHandleResolver()
-    {
+    public ConnectorHandleResolver getHandleResolver() {
         return new LocalFileHandleResolver();
     }
 
     @Override
-    public Connector create(String catalogName, Map<String, String> config, ConnectorContext context)
-    {
+    public String getName() {
+        return "resurface";
+    }
+
+    @Override
+    public Connector create(String catalogName, Map<String, String> config, ConnectorContext context) {
         requireNonNull(config, "config is null");
 
         Bootstrap app = new Bootstrap(
@@ -48,4 +42,5 @@ public class LocalFileConnectorFactory
 
         return injector.getInstance(LocalFileConnector.class);
     }
+
 }
