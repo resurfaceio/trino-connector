@@ -17,11 +17,10 @@ import java.io.File;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.OptionalInt;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Throwables.throwIfInstanceOf;
-import static io.resurface.trino.connector.ResurfaceTables.HttpRequestLogTable.*;
+import static io.resurface.trino.connector.ResurfaceTables.HttpRequestLogTable.getSchemaTableName;
 import static io.trino.spi.type.BigintType.BIGINT;
 import static io.trino.spi.type.TimestampWithTimeZoneType.createTimestampWithTimeZoneType;
 import static io.trino.spi.type.VarcharType.createUnboundedVarcharType;
@@ -44,7 +43,7 @@ public class ResurfaceTables {
 
             SchemaTableName table = getSchemaTableName();
             DataLocation dataLocation = new DataLocation(httpRequestLogLocation, pattern);
-            ResurfaceTableHandle tableHandle = new ResurfaceTableHandle(table, getTimestampColumn(), getServerAddressColumn());
+            ResurfaceTableHandle tableHandle = new ResurfaceTableHandle(table);
 
             tablesBuilder.put(table, tableHandle);
             tableColumnsBuilder.put(table, HttpRequestLogTable.getColumns());
@@ -90,7 +89,6 @@ public class ResurfaceTables {
     public static final class HttpRequestLogTable {
 
         private static final List<ColumnMetadata> COLUMNS = ImmutableList.of(
-                ResurfaceMetadata.SERVER_ADDRESS_COLUMN,
                 new ColumnMetadata("timestamp", createTimestampWithTimeZoneType(3)),
                 new ColumnMetadata("client_address", createUnboundedVarcharType()),
                 new ColumnMetadata("method", createUnboundedVarcharType()),
@@ -103,22 +101,14 @@ public class ResurfaceTables {
                 new ColumnMetadata("time_to_last_byte", BIGINT),
                 new ColumnMetadata("trace_token", createUnboundedVarcharType()));
 
-        private static final String TABLE_NAME = "http_request_log";
+        private static final String TABLE_NAME = "message";
 
         public static List<ColumnMetadata> getColumns() {
             return COLUMNS;
         }
 
         public static SchemaTableName getSchemaTableName() {
-            return new SchemaTableName(ResurfaceMetadata.PRESTO_LOGS_SCHEMA, TABLE_NAME);
-        }
-
-        public static OptionalInt getServerAddressColumn() {
-            return OptionalInt.of(-1);
-        }
-
-        public static OptionalInt getTimestampColumn() {
-            return OptionalInt.of(0);
+            return new SchemaTableName(ResurfaceMetadata.SCHEMA_NAME, TABLE_NAME);
         }
 
     }

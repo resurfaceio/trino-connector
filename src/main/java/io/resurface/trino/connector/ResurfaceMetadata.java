@@ -12,16 +12,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
-import static io.resurface.trino.connector.ResurfaceColumnHandle.SERVER_ADDRESS_COLUMN_NAME;
-import static io.resurface.trino.connector.ResurfaceColumnHandle.SERVER_ADDRESS_ORDINAL_POSITION;
-import static io.trino.spi.type.VarcharType.createUnboundedVarcharType;
 import static java.util.Objects.requireNonNull;
 
 public class ResurfaceMetadata implements ConnectorMetadata {
 
-    public static final String PRESTO_LOGS_SCHEMA = "logs";
-    public static final ColumnMetadata SERVER_ADDRESS_COLUMN = new ColumnMetadata("server_address", createUnboundedVarcharType());
-    private static final List<String> SCHEMA_NAMES = ImmutableList.of(PRESTO_LOGS_SCHEMA);
+    public static final String SCHEMA_NAME = "data";
+
+    public static final List<String> SCHEMA_NAMES = ImmutableList.of(SCHEMA_NAME);
 
     @Inject
     public ResurfaceMetadata(ResurfaceTables tables) {
@@ -38,13 +35,7 @@ public class ResurfaceMetadata implements ConnectorMetadata {
         TupleDomain<ColumnHandle> oldDomain = handle.getConstraint();
         TupleDomain<ColumnHandle> newDomain = oldDomain.intersect(constraint.getSummary());
         if (oldDomain.equals(newDomain)) return Optional.empty();
-
-        handle = new ResurfaceTableHandle(
-                handle.getSchemaTableName(),
-                handle.getTimestampColumn(),
-                handle.getServerAddressColumn(),
-                newDomain);
-
+        handle = new ResurfaceTableHandle(handle.getSchemaTableName(), newDomain);
         return Optional.of(new ConstraintApplicationResult<>(handle, constraint.getSummary()));
     }
 
@@ -55,19 +46,13 @@ public class ResurfaceMetadata implements ConnectorMetadata {
     }
 
     private Map<String, ColumnHandle> getColumnHandles(ResurfaceTableHandle tableHandle) {
-        ImmutableMap.Builder<String, ColumnHandle> columnHandles = ImmutableMap.builder();
+        ImmutableMap.Builder<String, ColumnHandle> handles = ImmutableMap.builder();
         int index = 0;
         for (ColumnMetadata column : tables.getColumns(tableHandle)) {
-            int ordinalPosition;
-            if (column.getName().equals(SERVER_ADDRESS_COLUMN_NAME)) {
-                ordinalPosition = SERVER_ADDRESS_ORDINAL_POSITION;
-            } else {
-                ordinalPosition = index;
-                index++;
-            }
-            columnHandles.put(column.getName(), new ResurfaceColumnHandle(column.getName(), column.getType(), ordinalPosition));
+            int ordinalPosition = index++;
+            handles.put(column.getName(), new ResurfaceColumnHandle(column.getName(), column.getType(), ordinalPosition));
         }
-        return columnHandles.build();
+        return handles.build();
     }
 
     @Override

@@ -3,55 +3,31 @@
 package io.resurface.trino.connector;
 
 import com.google.common.base.Joiner;
-import com.google.common.base.Splitter;
 import com.google.common.base.Strings;
-import com.google.common.collect.Iterables;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
-import io.trino.spi.HostAddress;
-import io.trino.spi.TrinoException;
 import io.trino.spi.connector.RecordCursor;
 import io.trino.spi.connector.SchemaTableName;
-import io.trino.spi.predicate.Domain;
-import io.trino.spi.predicate.TupleDomain;
 import io.trino.spi.type.Type;
 
 import java.io.*;
-import java.time.OffsetDateTime;
-import java.time.format.DateTimeFormatter;
-import java.time.temporal.ChronoUnit;
-import java.util.*;
-import java.util.zip.GZIPInputStream;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
 import static io.trino.spi.type.BigintType.BIGINT;
-import static io.trino.spi.type.BooleanType.BOOLEAN;
-import static io.trino.spi.type.DateTimeEncoding.packDateTimeWithZone;
 import static io.trino.spi.type.DoubleType.DOUBLE;
 import static io.trino.spi.type.IntegerType.INTEGER;
-import static io.trino.spi.type.TimestampWithTimeZoneType.createTimestampWithTimeZoneType;
 import static io.trino.spi.type.VarcharType.createUnboundedVarcharType;
-import static java.lang.Math.toIntExact;
 import static java.lang.String.format;
-import static java.time.format.DateTimeFormatter.ISO_OFFSET_DATE_TIME;
 import static java.util.Objects.requireNonNull;
-import static java.util.concurrent.TimeUnit.SECONDS;
-import static java.util.stream.Collectors.toSet;
-import static java.util.zip.GZIPInputStream.GZIP_MAGIC;
 
 public class ResurfaceRecordCursor implements RecordCursor {
 
-    private static final Splitter LINE_SPLITTER = Splitter.on("\t").trimResults();
-
-    // TODO This should be a config option as it may be different for different log files
-    public static final DateTimeFormatter ISO_FORMATTER = ISO_OFFSET_DATE_TIME;
-
-    public ResurfaceRecordCursor(ResurfaceTables tables, List<ResurfaceColumnHandle> columns,
-                                 SchemaTableName tableName, HostAddress address,
-                                 TupleDomain<ResurfaceColumnHandle> predicate) {
+    public ResurfaceRecordCursor(ResurfaceTables tables, List<ResurfaceColumnHandle> columns, SchemaTableName tableName) {
         this.columns = requireNonNull(columns, "columns is null");
-        this.address = requireNonNull(address, "address is null");
 
         fieldToColumnIndex = new int[columns.size()];
         for (int i = 0; i < columns.size(); i++) {
@@ -59,66 +35,26 @@ public class ResurfaceRecordCursor implements RecordCursor {
             fieldToColumnIndex[i] = handle.getOrdinalPosition();
         }
 
-        this.includeServer = isThisServerIncluded(address, predicate, tables.getTable(tableName));
-        this.reader = includeServer ? getFilesReader(tables, predicate, tableName) : null;
-    }
-
-    private final HostAddress address;
-    private final List<ResurfaceColumnHandle> columns;
-    private final int[] fieldToColumnIndex;
-    private final boolean includeServer;
-    private final FilesReader reader;
-    private List<String> fields;
-
-    private static FilesReader getFilesReader(ResurfaceTables tables,
-                                              TupleDomain<ResurfaceColumnHandle> predicate,
-                                              SchemaTableName tableName) {
-        ResurfaceTableHandle table = tables.getTable(tableName);
-        List<File> fileNames = tables.getFiles(tableName);
         try {
-            return new FilesReader(table.getTimestampColumn(), fileNames.iterator(), predicate);
+            this.reader = new FilesReader(tables.getFiles(tableName).iterator());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private static boolean isThisServerIncluded(HostAddress address,
-                                                TupleDomain<ResurfaceColumnHandle> predicate,
-                                                ResurfaceTableHandle table) {
-        if (table.getServerAddressColumn().isEmpty()) return true;
-        Optional<Map<ResurfaceColumnHandle, Domain>> domains = predicate.getDomains();
-        if (domains.isEmpty()) return true;
-
-        Set<Domain> serverAddressDomain = domains.get().entrySet().stream()
-                .filter(entry -> entry.getKey().getOrdinalPosition() == table.getServerAddressColumn().getAsInt())
-                .map(Map.Entry::getValue)
-                .collect(toSet());
-
-        if (serverAddressDomain.isEmpty()) return true;
-        for (Domain domain : serverAddressDomain) {
-            if (domain.includesNullableValue(Slices.utf8Slice(address.toString()))) return true;
-        }
-        return false;
-    }
+    private final List<ResurfaceColumnHandle> columns;
+    private final int[] fieldToColumnIndex;
+    private final FilesReader reader;
+    private List<String> fields;
 
     @Override
     public boolean advanceNextPosition() {
-        if (!includeServer) return false;
         try {
             fields = reader.readFields();
             return fields != null;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
-    }
-
-    private void checkFieldType(int field, Type... expected) {
-        Type actual = getType(field);
-        for (Type type : expected) {
-            if (actual.equals(type)) return;
-        }
-        String expectedTypes = Joiner.on(", ").join(expected);
-        throw new IllegalArgumentException(format("Expected field %s to be type %s but is %s", field, expectedTypes, actual));
     }
 
     @Override
@@ -128,8 +64,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
 
     @Override
     public boolean getBoolean(int field) {
-        checkFieldType(field, BOOLEAN);
-        return Boolean.parseBoolean(getFieldValue(field));
+        throw new UnsupportedOperationException();
     }
 
     @Override
@@ -143,22 +78,10 @@ public class ResurfaceRecordCursor implements RecordCursor {
         return Double.parseDouble(getFieldValue(field));
     }
 
-    private String getFieldValue(int field) {
-        checkState(fields != null, "Cursor has not been advanced yet");
-        int index = fieldToColumnIndex[field];
-        if (index == ResurfaceColumnHandle.SERVER_ADDRESS_ORDINAL_POSITION) return address.toString();
-        if (index >= fields.size()) return null;
-        return fields.get(index);
-    }
-
     @Override
     public long getLong(int field) {
-        if (getType(field).equals(createTimestampWithTimeZoneType(3))) {
-            return parseTimestamp(getFieldValue(field));
-        } else {
-            checkFieldType(field, BIGINT, INTEGER);
-            return Long.parseLong(getFieldValue(field));
-        }
+        checkFieldType(field, BIGINT, INTEGER);
+        return Long.parseLong(getFieldValue(field));
     }
 
     @Override
@@ -190,31 +113,32 @@ public class ResurfaceRecordCursor implements RecordCursor {
         return "null".equals(fieldValue) || Strings.isNullOrEmpty(fieldValue);
     }
 
-    private static long parseTimestamp(String value) {
-        OffsetDateTime time = OffsetDateTime.parse(value, ISO_FORMATTER)
-                .plus(500, ChronoUnit.MICROS)
-                .truncatedTo(ChronoUnit.MILLIS);
-        long epochMillis = time.toInstant().toEpochMilli();
-        int offsetMinutes = toIntExact(SECONDS.toMinutes(time.getOffset().getTotalSeconds()));
-        return packDateTimeWithZone(epochMillis, offsetMinutes);
+    private void checkFieldType(int field, Type... expected) {
+        Type actual = getType(field);
+        for (Type type : expected) {
+            if (actual.equals(type)) return;
+        }
+        String expectedTypes = Joiner.on(", ").join(expected);
+        throw new IllegalArgumentException(format("Expected field %s to be type %s but is %s", field, expectedTypes, actual));
+    }
+
+    private String getFieldValue(int field) {
+        checkState(fields != null, "Cursor has not been advanced yet");
+        int index = fieldToColumnIndex[field];
+        if (index >= fields.size()) return null;
+        return fields.get(index);
     }
 
     private static class FilesReader {
 
-        public FilesReader(OptionalInt timestampOrdinalPosition, Iterator<File> files,
-                           TupleDomain<ResurfaceColumnHandle> predicate) throws IOException {
+        public FilesReader(Iterator<File> files) throws IOException {
             requireNonNull(files, "files is null");
             this.files = files;
-            requireNonNull(predicate, "predicate is null");
-            this.domain = getDomain(timestampOrdinalPosition, predicate);
-            this.timestampOrdinalPosition = timestampOrdinalPosition;
             reader = createNextReader();
         }
 
-        private final Optional<Domain> domain;
         private final Iterator<File> files;
         private BufferedReader reader;
-        private final OptionalInt timestampOrdinalPosition;
 
         public void close() {
             if (reader != null) {
@@ -229,38 +153,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
             if (!files.hasNext()) return null;
             File file = files.next();
             FileInputStream fileInputStream = new FileInputStream(file);
-            InputStream in = isGZipped(file) ? new GZIPInputStream(fileInputStream) : fileInputStream;
-            return new BufferedReader(new InputStreamReader(in));
-        }
-
-        private static Optional<Domain> getDomain(OptionalInt timestampOrdinalPosition,
-                                                  TupleDomain<ResurfaceColumnHandle> predicate) {
-            Optional<Map<ResurfaceColumnHandle, Domain>> domains = predicate.getDomains();
-            Domain domain = null;
-            if (domains.isPresent() && timestampOrdinalPosition.isPresent()) {
-                Map<ResurfaceColumnHandle, Domain> domainMap = domains.get();
-                Set<Domain> timestampDomain = domainMap.entrySet().stream()
-                        .filter(entry -> entry.getKey().getOrdinalPosition() == timestampOrdinalPosition.getAsInt())
-                        .map(Map.Entry::getValue)
-                        .collect(toSet());
-                if (!timestampDomain.isEmpty()) domain = Iterables.getOnlyElement(timestampDomain);
-            }
-            return Optional.ofNullable(domain);
-        }
-
-        private static boolean isGZipped(File file) {
-            try (RandomAccessFile inputFile = new RandomAccessFile(file, "r")) {
-                int magic = inputFile.read() & 0xff | ((inputFile.read() << 8) & 0xff00);
-                return magic == GZIP_MAGIC;
-            } catch (IOException e) {
-                throw new TrinoException(ResurfaceErrorCode.RESURFACE_READ_ERROR, "Error reading file: " + file.getName(), e);
-            }
-        }
-
-        private boolean meetsPredicate(List<String> fields) {
-            if (timestampOrdinalPosition.isEmpty() || domain.isEmpty()) return true;
-            long timestamp = parseTimestamp(fields.get(timestampOrdinalPosition.getAsInt()));
-            return domain.get().includesNullableValue(timestamp);
+            return new BufferedReader(new InputStreamReader(fileInputStream));
         }
 
         public List<String> readFields() throws IOException {
@@ -271,8 +164,19 @@ public class ResurfaceRecordCursor implements RecordCursor {
                 if (reader == null) return null;
                 String line = reader.readLine();
                 if (line != null) {
-                    fields = LINE_SPLITTER.splitToList(line);
-                    if (!newReader || meetsPredicate(fields)) return fields;
+                    fields = new ArrayList<>();
+                    fields.add(null);  // timestamp
+                    fields.add("192.168.4.61");
+                    fields.add("POST");
+                    fields.add("/v1/memory");
+                    fields.add("rdickinson");
+                    fields.add("myagent");
+                    fields.add("200");
+                    fields.add("73");
+                    fields.add("269");
+                    fields.add("2");
+                    fields.add("asdf1234");
+                    if (!newReader) return fields;
                 }
                 reader.close();
                 reader = createNextReader();

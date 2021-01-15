@@ -16,6 +16,8 @@ import static java.util.Objects.requireNonNull;
 
 public class ResurfaceConnectorFactory implements ConnectorFactory {
 
+    public static final String CONNECTOR_NAME = "resurface";
+
     @Override
     public Connector create(String catalogName, Map<String, String> config, ConnectorContext context) {
         requireNonNull(config, "config is null");
@@ -39,7 +41,7 @@ public class ResurfaceConnectorFactory implements ConnectorFactory {
 
     @Override
     public String getName() {
-        return "resurface";
+        return CONNECTOR_NAME;
     }
 
 }

@@ -15,9 +15,6 @@ import static java.util.Objects.requireNonNull;
 
 public class ResurfaceColumnHandle implements ColumnHandle {
 
-    public static final int SERVER_ADDRESS_ORDINAL_POSITION = -1;
-    public static final String SERVER_ADDRESS_COLUMN_NAME = "server_address";
-
     @JsonCreator
     public ResurfaceColumnHandle(
             @JsonProperty("columnName") String columnName,

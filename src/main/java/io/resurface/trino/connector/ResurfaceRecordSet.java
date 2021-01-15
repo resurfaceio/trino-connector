@@ -3,8 +3,6 @@
 package io.resurface.trino.connector;
 
 import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Iterables;
-import io.trino.spi.HostAddress;
 import io.trino.spi.connector.RecordCursor;
 import io.trino.spi.connector.RecordSet;
 import io.trino.spi.connector.SchemaTableName;
@@ -24,22 +22,18 @@ public class ResurfaceRecordSet implements RecordSet {
         ImmutableList.Builder<Type> types = ImmutableList.builder();
         for (ResurfaceColumnHandle column : columns) types.add(column.getColumnType());
         this.columnTypes = types.build();
-        this.address = Iterables.getOnlyElement(split.getAddresses());
-        this.effectivePredicate = table.getConstraint().transform(ResurfaceColumnHandle.class::cast);
         this.tableName = table.getSchemaTableName();
         this.tables = requireNonNull(tables, "tables is null");
     }
 
-    private final HostAddress address;
     private final List<ResurfaceColumnHandle> columns;
     private final List<Type> columnTypes;
-    private final TupleDomain<ResurfaceColumnHandle> effectivePredicate;
     private final ResurfaceTables tables;
     private final SchemaTableName tableName;
 
     @Override
     public RecordCursor cursor() {
-        return new ResurfaceRecordCursor(tables, columns, tableName, address, effectivePredicate);
+        return new ResurfaceRecordCursor(tables, columns, tableName);
     }
 
     @Override

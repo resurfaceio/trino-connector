@@ -10,48 +10,38 @@ import io.trino.spi.connector.SchemaTableName;
 import io.trino.spi.predicate.TupleDomain;
 
 import java.util.Objects;
-import java.util.OptionalInt;
 
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static java.util.Objects.requireNonNull;
 
 public class ResurfaceTableHandle implements ConnectorTableHandle {
 
-    public ResurfaceTableHandle(SchemaTableName schemaTableName, OptionalInt timestampColumn, OptionalInt serverAddressColumn) {
-        this(schemaTableName, timestampColumn, serverAddressColumn, TupleDomain.all());
+    public ResurfaceTableHandle(SchemaTableName schemaTableName) {
+        this(schemaTableName, TupleDomain.all());
     }
 
     @JsonCreator
     public ResurfaceTableHandle(
             @JsonProperty("schemaTableName") SchemaTableName schemaTableName,
-            @JsonProperty("timestampColumn") OptionalInt timestampColumn,
-            @JsonProperty("serverAddressColumn") OptionalInt serverAddressColumn,
             @JsonProperty("constraint") TupleDomain<ColumnHandle> constraint) {
         this.schemaTableName = requireNonNull(schemaTableName, "schemaTableName is null");
-        this.timestampColumn = requireNonNull(timestampColumn, "timestampColumn is null");
-        this.serverAddressColumn = requireNonNull(serverAddressColumn, "serverAddressColumn is null");
         this.constraint = requireNonNull(constraint, "constraint is null");
     }
 
     private final TupleDomain<ColumnHandle> constraint;
     private final SchemaTableName schemaTableName;
-    private final OptionalInt serverAddressColumn;
-    private final OptionalInt timestampColumn;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         ResurfaceTableHandle that = (ResurfaceTableHandle) o;
-        return Objects.equals(schemaTableName, that.schemaTableName) &&
-                Objects.equals(timestampColumn, that.timestampColumn) &&
-                Objects.equals(serverAddressColumn, that.serverAddressColumn) &&
-                Objects.equals(constraint, that.constraint);
+        return Objects.equals(schemaTableName, that.schemaTableName) && Objects.equals(constraint, that.constraint);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(schemaTableName, timestampColumn, serverAddressColumn, constraint);
+        return Objects.hash(schemaTableName, constraint);
     }
 
     @JsonProperty
@@ -62,16 +52,6 @@ public class ResurfaceTableHandle implements ConnectorTableHandle {
     @JsonProperty
     public SchemaTableName getSchemaTableName() {
         return schemaTableName;
-    }
-
-    @JsonProperty
-    public OptionalInt getServerAddressColumn() {
-        return serverAddressColumn;
-    }
-
-    @JsonProperty
-    public OptionalInt getTimestampColumn() {
-        return timestampColumn;
     }
 
     @Override
