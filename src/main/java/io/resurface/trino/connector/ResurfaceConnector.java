@@ -12,11 +12,11 @@ import static io.trino.spi.transaction.IsolationLevel.READ_COMMITTED;
 import static io.trino.spi.transaction.IsolationLevel.checkConnectorSupports;
 import static java.util.Objects.requireNonNull;
 
-public class LocalFileConnector implements Connector {
+public class ResurfaceConnector implements Connector {
 
     @Inject
-    public LocalFileConnector(LifeCycleManager lifeCycleManager, LocalFileMetadata metadata,
-                              LocalFileSplitManager splitManager, LocalFileRecordSetProvider recordSetProvider) {
+    public ResurfaceConnector(LifeCycleManager lifeCycleManager, ResurfaceMetadata metadata,
+                              ResurfaceSplitManager splitManager, ResurfaceRecordSetProvider recordSetProvider) {
         this.lifeCycleManager = requireNonNull(lifeCycleManager, "lifeCycleManager is null");
         this.metadata = requireNonNull(metadata, "metadata is null");
         this.recordSetProvider = requireNonNull(recordSetProvider, "recordSetProvider is null");
@@ -24,14 +24,14 @@ public class LocalFileConnector implements Connector {
     }
 
     private final LifeCycleManager lifeCycleManager;
-    private final LocalFileMetadata metadata;
-    private final LocalFileRecordSetProvider recordSetProvider;
-    private final LocalFileSplitManager splitManager;
+    private final ResurfaceMetadata metadata;
+    private final ResurfaceRecordSetProvider recordSetProvider;
+    private final ResurfaceSplitManager splitManager;
 
     @Override
     public ConnectorTransactionHandle beginTransaction(IsolationLevel isolationLevel, boolean readOnly) {
         checkConnectorSupports(READ_COMMITTED, isolationLevel);
-        return LocalFileTransactionHandle.INSTANCE;
+        return ResurfaceTransactionHandle.INSTANCE;
     }
 
     @Override

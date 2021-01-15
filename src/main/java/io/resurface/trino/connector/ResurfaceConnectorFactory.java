@@ -14,17 +14,7 @@ import java.util.Map;
 
 import static java.util.Objects.requireNonNull;
 
-public class LocalFileConnectorFactory implements ConnectorFactory {
-
-    @Override
-    public ConnectorHandleResolver getHandleResolver() {
-        return new LocalFileHandleResolver();
-    }
-
-    @Override
-    public String getName() {
-        return "resurface";
-    }
+public class ResurfaceConnectorFactory implements ConnectorFactory {
 
     @Override
     public Connector create(String catalogName, Map<String, String> config, ConnectorContext context) {
@@ -32,15 +22,24 @@ public class LocalFileConnectorFactory implements ConnectorFactory {
 
         Bootstrap app = new Bootstrap(
                 binder -> binder.bind(NodeManager.class).toInstance(context.getNodeManager()),
-                new LocalFileModule());
+                new ResurfaceModule());
 
-        Injector injector = app
-                .strictConfig()
+        Injector injector = app.strictConfig()
                 .doNotInitializeLogging()
                 .setRequiredConfigurationProperties(config)
                 .initialize();
 
-        return injector.getInstance(LocalFileConnector.class);
+        return injector.getInstance(ResurfaceConnector.class);
+    }
+
+    @Override
+    public ConnectorHandleResolver getHandleResolver() {
+        return new ResurfaceHandleResolver();
+    }
+
+    @Override
+    public String getName() {
+        return "resurface";
     }
 
 }

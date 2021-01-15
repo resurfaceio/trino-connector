@@ -40,40 +40,41 @@ import static java.util.concurrent.TimeUnit.SECONDS;
 import static java.util.stream.Collectors.toSet;
 import static java.util.zip.GZIPInputStream.GZIP_MAGIC;
 
-public class LocalFileRecordCursor implements RecordCursor {
+public class ResurfaceRecordCursor implements RecordCursor {
 
     private static final Splitter LINE_SPLITTER = Splitter.on("\t").trimResults();
 
     // TODO This should be a config option as it may be different for different log files
     public static final DateTimeFormatter ISO_FORMATTER = ISO_OFFSET_DATE_TIME;
 
-    public LocalFileRecordCursor(LocalFileTables localFileTables, List<LocalFileColumnHandle> columns,
+    public ResurfaceRecordCursor(ResurfaceTables tables, List<ResurfaceColumnHandle> columns,
                                  SchemaTableName tableName, HostAddress address,
-                                 TupleDomain<LocalFileColumnHandle> predicate) {
+                                 TupleDomain<ResurfaceColumnHandle> predicate) {
         this.columns = requireNonNull(columns, "columns is null");
         this.address = requireNonNull(address, "address is null");
 
         fieldToColumnIndex = new int[columns.size()];
         for (int i = 0; i < columns.size(); i++) {
-            LocalFileColumnHandle columnHandle = columns.get(i);
-            fieldToColumnIndex[i] = columnHandle.getOrdinalPosition();
+            ResurfaceColumnHandle handle = columns.get(i);
+            fieldToColumnIndex[i] = handle.getOrdinalPosition();
         }
 
-        this.includeServer = isThisServerIncluded(address, predicate, localFileTables.getTable(tableName));
-        this.reader = includeServer ? getFilesReader(localFileTables, predicate, tableName) : null;
+        this.includeServer = isThisServerIncluded(address, predicate, tables.getTable(tableName));
+        this.reader = includeServer ? getFilesReader(tables, predicate, tableName) : null;
     }
 
     private final HostAddress address;
-    private final List<LocalFileColumnHandle> columns;
+    private final List<ResurfaceColumnHandle> columns;
     private final int[] fieldToColumnIndex;
     private final boolean includeServer;
     private final FilesReader reader;
     private List<String> fields;
 
-    private static FilesReader getFilesReader(LocalFileTables localFileTables, TupleDomain<LocalFileColumnHandle> predicate,
+    private static FilesReader getFilesReader(ResurfaceTables tables,
+                                              TupleDomain<ResurfaceColumnHandle> predicate,
                                               SchemaTableName tableName) {
-        LocalFileTableHandle table = localFileTables.getTable(tableName);
-        List<File> fileNames = localFileTables.getFiles(tableName);
+        ResurfaceTableHandle table = tables.getTable(tableName);
+        List<File> fileNames = tables.getFiles(tableName);
         try {
             return new FilesReader(table.getTimestampColumn(), fileNames.iterator(), predicate);
         } catch (IOException e) {
@@ -81,10 +82,11 @@ public class LocalFileRecordCursor implements RecordCursor {
         }
     }
 
-    private static boolean isThisServerIncluded(HostAddress address, TupleDomain<LocalFileColumnHandle> predicate,
-                                                LocalFileTableHandle table) {
+    private static boolean isThisServerIncluded(HostAddress address,
+                                                TupleDomain<ResurfaceColumnHandle> predicate,
+                                                ResurfaceTableHandle table) {
         if (table.getServerAddressColumn().isEmpty()) return true;
-        Optional<Map<LocalFileColumnHandle, Domain>> domains = predicate.getDomains();
+        Optional<Map<ResurfaceColumnHandle, Domain>> domains = predicate.getDomains();
         if (domains.isEmpty()) return true;
 
         Set<Domain> serverAddressDomain = domains.get().entrySet().stream()
@@ -143,10 +145,10 @@ public class LocalFileRecordCursor implements RecordCursor {
 
     private String getFieldValue(int field) {
         checkState(fields != null, "Cursor has not been advanced yet");
-        int columnIndex = fieldToColumnIndex[field];
-        if (columnIndex == LocalFileColumnHandle.SERVER_ADDRESS_ORDINAL_POSITION) return address.toString();
-        if (columnIndex >= fields.size()) return null;
-        return fields.get(columnIndex);
+        int index = fieldToColumnIndex[field];
+        if (index == ResurfaceColumnHandle.SERVER_ADDRESS_ORDINAL_POSITION) return address.toString();
+        if (index >= fields.size()) return null;
+        return fields.get(index);
     }
 
     @Override
@@ -200,7 +202,7 @@ public class LocalFileRecordCursor implements RecordCursor {
     private static class FilesReader {
 
         public FilesReader(OptionalInt timestampOrdinalPosition, Iterator<File> files,
-                           TupleDomain<LocalFileColumnHandle> predicate) throws IOException {
+                           TupleDomain<ResurfaceColumnHandle> predicate) throws IOException {
             requireNonNull(files, "files is null");
             this.files = files;
             requireNonNull(predicate, "predicate is null");
@@ -232,11 +234,11 @@ public class LocalFileRecordCursor implements RecordCursor {
         }
 
         private static Optional<Domain> getDomain(OptionalInt timestampOrdinalPosition,
-                                                  TupleDomain<LocalFileColumnHandle> predicate) {
-            Optional<Map<LocalFileColumnHandle, Domain>> domains = predicate.getDomains();
+                                                  TupleDomain<ResurfaceColumnHandle> predicate) {
+            Optional<Map<ResurfaceColumnHandle, Domain>> domains = predicate.getDomains();
             Domain domain = null;
             if (domains.isPresent() && timestampOrdinalPosition.isPresent()) {
-                Map<LocalFileColumnHandle, Domain> domainMap = domains.get();
+                Map<ResurfaceColumnHandle, Domain> domainMap = domains.get();
                 Set<Domain> timestampDomain = domainMap.entrySet().stream()
                         .filter(entry -> entry.getKey().getOrdinalPosition() == timestampOrdinalPosition.getAsInt())
                         .map(Map.Entry::getValue)
@@ -251,7 +253,7 @@ public class LocalFileRecordCursor implements RecordCursor {
                 int magic = inputFile.read() & 0xff | ((inputFile.read() << 8) & 0xff00);
                 return magic == GZIP_MAGIC;
             } catch (IOException e) {
-                throw new TrinoException(LocalFileErrorCode.LOCAL_FILE_READ_ERROR, "Error reading file: " + file.getName(), e);
+                throw new TrinoException(ResurfaceErrorCode.RESURFACE_READ_ERROR, "Error reading file: " + file.getName(), e);
             }
         }
 

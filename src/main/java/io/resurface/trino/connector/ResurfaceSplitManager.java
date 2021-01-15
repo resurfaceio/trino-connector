@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
-public class LocalFileSplitManager implements ConnectorSplitManager {
+public class ResurfaceSplitManager implements ConnectorSplitManager {
 
     @Inject
-    public LocalFileSplitManager(NodeManager nodeManager) {
+    public ResurfaceSplitManager(NodeManager nodeManager) {
         this.nodeManager = requireNonNull(nodeManager, "nodeManager is null");
     }
 
@@ -26,7 +26,7 @@ public class LocalFileSplitManager implements ConnectorSplitManager {
                                           DynamicFilter dynamicFilter) {
 
         List<ConnectorSplit> splits = nodeManager.getAllNodes().stream()
-                .map(node -> new LocalFileSplit(node.getHostAndPort()))
+                .map(node -> new ResurfaceSplit(node.getHostAndPort()))
                 .collect(Collectors.toList());
 
         return new FixedSplitSource(splits);

@@ -26,15 +26,15 @@ final class MetadataUtil {
     private MetadataUtil() {
     }
 
-    public static final JsonCodec<LocalFileColumnHandle> COLUMN_CODEC;
-    public static final JsonCodec<LocalFileTableHandle> TABLE_CODEC;
+    public static final JsonCodec<ResurfaceColumnHandle> COLUMN_CODEC;
+    public static final JsonCodec<ResurfaceTableHandle> TABLE_CODEC;
 
     static {
         ObjectMapperProvider objectMapperProvider = new ObjectMapperProvider();
         objectMapperProvider.setJsonDeserializers(ImmutableMap.of(Type.class, new TestingTypeDeserializer()));
         JsonCodecFactory codecFactory = new JsonCodecFactory(objectMapperProvider);
-        COLUMN_CODEC = codecFactory.jsonCodec(LocalFileColumnHandle.class);
-        TABLE_CODEC = codecFactory.jsonCodec(LocalFileTableHandle.class);
+        COLUMN_CODEC = codecFactory.jsonCodec(ResurfaceColumnHandle.class);
+        TABLE_CODEC = codecFactory.jsonCodec(ResurfaceTableHandle.class);
     }
 
     public static final class TestingTypeDeserializer extends FromStringDeserializer<Type> {

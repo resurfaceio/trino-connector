@@ -15,31 +15,31 @@ import java.util.List;
 
 import static java.util.Objects.requireNonNull;
 
-public class LocalFileRecordSet implements RecordSet {
+public class ResurfaceRecordSet implements RecordSet {
 
-    public LocalFileRecordSet(LocalFileTables localFileTables, LocalFileSplit split,
-                              LocalFileTableHandle table, List<LocalFileColumnHandle> columns) {
+    public ResurfaceRecordSet(ResurfaceTables tables, ResurfaceSplit split,
+                              ResurfaceTableHandle table, List<ResurfaceColumnHandle> columns) {
         this.columns = requireNonNull(columns, "column handles is null");
         requireNonNull(split, "split is null");
         ImmutableList.Builder<Type> types = ImmutableList.builder();
-        for (LocalFileColumnHandle column : columns) types.add(column.getColumnType());
+        for (ResurfaceColumnHandle column : columns) types.add(column.getColumnType());
         this.columnTypes = types.build();
         this.address = Iterables.getOnlyElement(split.getAddresses());
-        this.effectivePredicate = table.getConstraint().transform(LocalFileColumnHandle.class::cast);
+        this.effectivePredicate = table.getConstraint().transform(ResurfaceColumnHandle.class::cast);
         this.tableName = table.getSchemaTableName();
-        this.localFileTables = requireNonNull(localFileTables, "localFileTables is null");
+        this.tables = requireNonNull(tables, "tables is null");
     }
 
     private final HostAddress address;
-    private final List<LocalFileColumnHandle> columns;
+    private final List<ResurfaceColumnHandle> columns;
     private final List<Type> columnTypes;
-    private final TupleDomain<LocalFileColumnHandle> effectivePredicate;
-    private final LocalFileTables localFileTables;
+    private final TupleDomain<ResurfaceColumnHandle> effectivePredicate;
+    private final ResurfaceTables tables;
     private final SchemaTableName tableName;
 
     @Override
     public RecordCursor cursor() {
-        return new LocalFileRecordCursor(localFileTables, columns, tableName, address, effectivePredicate);
+        return new ResurfaceRecordCursor(tables, columns, tableName, address, effectivePredicate);
     }
 
     @Override

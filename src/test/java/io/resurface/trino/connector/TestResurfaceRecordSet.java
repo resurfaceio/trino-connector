@@ -11,41 +11,41 @@ import java.util.List;
 import java.util.OptionalInt;
 import java.util.stream.Collectors;
 
-import static io.resurface.trino.connector.LocalFileTables.HttpRequestLogTable.getSchemaTableName;
+import static io.resurface.trino.connector.ResurfaceTables.HttpRequestLogTable.getSchemaTableName;
 import static io.trino.testing.TestingConnectorSession.SESSION;
 import static org.testng.Assert.assertEquals;
 import static org.testng.Assert.assertTrue;
 
-public class TestLocalFileRecordSet {
+public class TestResurfaceRecordSet {
 
     private static final HostAddress address = HostAddress.fromParts("localhost", 1234);
 
     @Test
     public void testSimpleCursor() {
         String location = "example-data";
-        LocalFileTables localFileTables = new LocalFileTables(new LocalFileConfig().setHttpRequestLogLocation(getResourceFilePath(location)));
-        LocalFileMetadata metadata = new LocalFileMetadata(localFileTables);
+        ResurfaceTables tables = new ResurfaceTables(new ResurfaceConfig().setHttpRequestLogLocation(getResourceFilePath(location)));
+        ResurfaceMetadata metadata = new ResurfaceMetadata(tables);
 
-        assertData(localFileTables, metadata);
+        assertData(tables, metadata);
     }
 
     @Test
     public void testGzippedData() {
         String location = "example-gzipped-data";
-        LocalFileTables localFileTables = new LocalFileTables(new LocalFileConfig().setHttpRequestLogLocation(getResourceFilePath(location)));
-        LocalFileMetadata metadata = new LocalFileMetadata(localFileTables);
+        ResurfaceTables tables = new ResurfaceTables(new ResurfaceConfig().setHttpRequestLogLocation(getResourceFilePath(location)));
+        ResurfaceMetadata metadata = new ResurfaceMetadata(tables);
 
-        assertData(localFileTables, metadata);
+        assertData(tables, metadata);
     }
 
-    private static void assertData(LocalFileTables localFileTables, LocalFileMetadata metadata) {
-        LocalFileTableHandle tableHandle = new LocalFileTableHandle(getSchemaTableName(), OptionalInt.of(0), OptionalInt.of(-1));
-        List<LocalFileColumnHandle> columnHandles = metadata.getColumnHandles(SESSION, tableHandle)
-                .values().stream().map(column -> (LocalFileColumnHandle) column)
+    private static void assertData(ResurfaceTables tables, ResurfaceMetadata metadata) {
+        ResurfaceTableHandle tableHandle = new ResurfaceTableHandle(getSchemaTableName(), OptionalInt.of(0), OptionalInt.of(-1));
+        List<ResurfaceColumnHandle> columnHandles = metadata.getColumnHandles(SESSION, tableHandle)
+                .values().stream().map(column -> (ResurfaceColumnHandle) column)
                 .collect(Collectors.toList());
 
-        LocalFileSplit split = new LocalFileSplit(address);
-        RecordSet recordSet = new LocalFileRecordSet(localFileTables, split, tableHandle, columnHandles);
+        ResurfaceSplit split = new ResurfaceSplit(address);
+        RecordSet recordSet = new ResurfaceRecordSet(tables, split, tableHandle, columnHandles);
         RecordCursor cursor = recordSet.cursor();
 
         for (int i = 0; i < columnHandles.size(); i++) {

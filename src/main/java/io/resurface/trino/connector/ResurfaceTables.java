@@ -21,18 +21,18 @@ import java.util.OptionalInt;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Throwables.throwIfInstanceOf;
-import static io.resurface.trino.connector.LocalFileTables.HttpRequestLogTable.*;
+import static io.resurface.trino.connector.ResurfaceTables.HttpRequestLogTable.*;
 import static io.trino.spi.type.BigintType.BIGINT;
 import static io.trino.spi.type.TimestampWithTimeZoneType.createTimestampWithTimeZoneType;
 import static io.trino.spi.type.VarcharType.createUnboundedVarcharType;
 import static java.util.concurrent.TimeUnit.SECONDS;
 
-public class LocalFileTables {
+public class ResurfaceTables {
 
     @Inject
-    public LocalFileTables(LocalFileConfig config) {
+    public ResurfaceTables(ResurfaceConfig config) {
         ImmutableMap.Builder<SchemaTableName, DataLocation> dataLocationBuilder = ImmutableMap.builder();
-        ImmutableMap.Builder<SchemaTableName, LocalFileTableHandle> tablesBuilder = ImmutableMap.builder();
+        ImmutableMap.Builder<SchemaTableName, ResurfaceTableHandle> tablesBuilder = ImmutableMap.builder();
         ImmutableMap.Builder<SchemaTableName, List<ColumnMetadata>> tableColumnsBuilder = ImmutableMap.builder();
 
         String httpRequestLogLocation = config.getHttpRequestLogLocation();
@@ -44,7 +44,7 @@ public class LocalFileTables {
 
             SchemaTableName table = getSchemaTableName();
             DataLocation dataLocation = new DataLocation(httpRequestLogLocation, pattern);
-            LocalFileTableHandle tableHandle = new LocalFileTableHandle(table, getTimestampColumn(), getServerAddressColumn());
+            ResurfaceTableHandle tableHandle = new ResurfaceTableHandle(table, getTimestampColumn(), getServerAddressColumn());
 
             tablesBuilder.put(table, tableHandle);
             tableColumnsBuilder.put(table, HttpRequestLogTable.getColumns());
@@ -63,9 +63,9 @@ public class LocalFileTables {
     private final LoadingCache<SchemaTableName, List<File>> cachedFiles;
     private final Map<SchemaTableName, List<ColumnMetadata>> tableColumns;
     private final Map<SchemaTableName, DataLocation> tableDataLocations;
-    private final Map<SchemaTableName, LocalFileTableHandle> tables;
+    private final Map<SchemaTableName, ResurfaceTableHandle> tables;
 
-    public List<ColumnMetadata> getColumns(LocalFileTableHandle tableHandle) {
+    public List<ColumnMetadata> getColumns(ResurfaceTableHandle tableHandle) {
         checkArgument(tableColumns.containsKey(tableHandle.getSchemaTableName()), "Table '%s' not registered", tableHandle.getSchemaTableName());
         return tableColumns.get(tableHandle.getSchemaTableName());
     }
@@ -79,7 +79,7 @@ public class LocalFileTables {
         }
     }
 
-    public LocalFileTableHandle getTable(SchemaTableName tableName) {
+    public ResurfaceTableHandle getTable(SchemaTableName tableName) {
         return tables.get(tableName);
     }
 
@@ -90,7 +90,7 @@ public class LocalFileTables {
     public static final class HttpRequestLogTable {
 
         private static final List<ColumnMetadata> COLUMNS = ImmutableList.of(
-                LocalFileMetadata.SERVER_ADDRESS_COLUMN,
+                ResurfaceMetadata.SERVER_ADDRESS_COLUMN,
                 new ColumnMetadata("timestamp", createTimestampWithTimeZoneType(3)),
                 new ColumnMetadata("client_address", createUnboundedVarcharType()),
                 new ColumnMetadata("method", createUnboundedVarcharType()),
@@ -110,7 +110,7 @@ public class LocalFileTables {
         }
 
         public static SchemaTableName getSchemaTableName() {
-            return new SchemaTableName(LocalFileMetadata.PRESTO_LOGS_SCHEMA, TABLE_NAME);
+            return new SchemaTableName(ResurfaceMetadata.PRESTO_LOGS_SCHEMA, TABLE_NAME);
         }
 
         public static OptionalInt getServerAddressColumn() {

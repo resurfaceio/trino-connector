@@ -4,26 +4,26 @@ package io.resurface.trino.connector;
 
 import io.trino.spi.connector.*;
 
-public class LocalFileHandleResolver implements ConnectorHandleResolver {
+public class ResurfaceHandleResolver implements ConnectorHandleResolver {
 
     @Override
     public Class<? extends ColumnHandle> getColumnHandleClass() {
-        return LocalFileColumnHandle.class;
+        return ResurfaceColumnHandle.class;
     }
 
     @Override
     public Class<? extends ConnectorSplit> getSplitClass() {
-        return LocalFileSplit.class;
+        return ResurfaceSplit.class;
     }
 
     @Override
     public Class<? extends ConnectorTableHandle> getTableHandleClass() {
-        return LocalFileTableHandle.class;
+        return ResurfaceTableHandle.class;
     }
 
     @Override
     public Class<? extends ConnectorTransactionHandle> getTransactionHandleClass() {
-        return LocalFileTransactionHandle.class;
+        return ResurfaceTransactionHandle.class;
     }
 
 }

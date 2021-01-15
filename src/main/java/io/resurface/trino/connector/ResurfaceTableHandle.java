@@ -15,14 +15,14 @@ import java.util.OptionalInt;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static java.util.Objects.requireNonNull;
 
-public class LocalFileTableHandle implements ConnectorTableHandle {
+public class ResurfaceTableHandle implements ConnectorTableHandle {
 
-    public LocalFileTableHandle(SchemaTableName schemaTableName, OptionalInt timestampColumn, OptionalInt serverAddressColumn) {
+    public ResurfaceTableHandle(SchemaTableName schemaTableName, OptionalInt timestampColumn, OptionalInt serverAddressColumn) {
         this(schemaTableName, timestampColumn, serverAddressColumn, TupleDomain.all());
     }
 
     @JsonCreator
-    public LocalFileTableHandle(
+    public ResurfaceTableHandle(
             @JsonProperty("schemaTableName") SchemaTableName schemaTableName,
             @JsonProperty("timestampColumn") OptionalInt timestampColumn,
             @JsonProperty("serverAddressColumn") OptionalInt serverAddressColumn,
@@ -42,7 +42,7 @@ public class LocalFileTableHandle implements ConnectorTableHandle {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        LocalFileTableHandle that = (LocalFileTableHandle) o;
+        ResurfaceTableHandle that = (ResurfaceTableHandle) o;
         return Objects.equals(schemaTableName, that.schemaTableName) &&
                 Objects.equals(timestampColumn, that.timestampColumn) &&
                 Objects.equals(serverAddressColumn, that.serverAddressColumn) &&

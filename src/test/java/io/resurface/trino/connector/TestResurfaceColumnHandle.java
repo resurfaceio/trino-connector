@@ -16,21 +16,21 @@ import static io.trino.spi.type.TimestampWithTimeZoneType.createTimestampWithTim
 import static io.trino.spi.type.VarcharType.createUnboundedVarcharType;
 import static org.testng.Assert.assertEquals;
 
-public class TestLocalFileColumnHandle {
+public class TestResurfaceColumnHandle {
 
-    private final List<LocalFileColumnHandle> columnHandle = ImmutableList.of(
-            new LocalFileColumnHandle("columnName", createUnboundedVarcharType(), 0),
-            new LocalFileColumnHandle("columnName", BIGINT, 0),
-            new LocalFileColumnHandle("columnName", DOUBLE, 0),
-            new LocalFileColumnHandle("columnName", DATE, 0),
-            new LocalFileColumnHandle("columnName", createTimestampWithTimeZoneType(3), 0),
-            new LocalFileColumnHandle("columnName", BOOLEAN, 0));
+    private final List<ResurfaceColumnHandle> columnHandle = ImmutableList.of(
+            new ResurfaceColumnHandle("columnName", createUnboundedVarcharType(), 0),
+            new ResurfaceColumnHandle("columnName", BIGINT, 0),
+            new ResurfaceColumnHandle("columnName", DOUBLE, 0),
+            new ResurfaceColumnHandle("columnName", DATE, 0),
+            new ResurfaceColumnHandle("columnName", createTimestampWithTimeZoneType(3), 0),
+            new ResurfaceColumnHandle("columnName", BOOLEAN, 0));
 
     @Test
     public void testJsonRoundTrip() {
-        for (LocalFileColumnHandle handle : columnHandle) {
+        for (ResurfaceColumnHandle handle : columnHandle) {
             String json = COLUMN_CODEC.toJson(handle);
-            LocalFileColumnHandle copy = COLUMN_CODEC.fromJson(json);
+            ResurfaceColumnHandle copy = COLUMN_CODEC.fromJson(json);
             assertEquals(copy, handle);
         }
     }

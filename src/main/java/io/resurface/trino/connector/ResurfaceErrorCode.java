@@ -8,13 +8,13 @@ import io.trino.spi.ErrorType;
 
 import static io.trino.spi.ErrorType.EXTERNAL;
 
-public enum LocalFileErrorCode implements ErrorCodeSupplier {
+public enum ResurfaceErrorCode implements ErrorCodeSupplier {
 
-    LOCAL_FILE_NO_FILES(0, EXTERNAL),
-    LOCAL_FILE_FILESYSTEM_ERROR(1, EXTERNAL),
-    LOCAL_FILE_READ_ERROR(2, EXTERNAL);
+    RESURFACE_NO_FILES(0, EXTERNAL),
+    RESURFACE_FILESYSTEM_ERROR(1, EXTERNAL),
+    RESURFACE_READ_ERROR(2, EXTERNAL);
 
-    LocalFileErrorCode(int code, ErrorType type) {
+    ResurfaceErrorCode(int code, ErrorType type) {
         errorCode = new ErrorCode(code + 0x0501_0000, name(), type);
     }
 

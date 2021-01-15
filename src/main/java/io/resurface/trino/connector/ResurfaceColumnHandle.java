@@ -13,13 +13,13 @@ import java.util.Objects;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static java.util.Objects.requireNonNull;
 
-public class LocalFileColumnHandle implements ColumnHandle {
+public class ResurfaceColumnHandle implements ColumnHandle {
 
     public static final int SERVER_ADDRESS_ORDINAL_POSITION = -1;
     public static final String SERVER_ADDRESS_COLUMN_NAME = "server_address";
 
     @JsonCreator
-    public LocalFileColumnHandle(
+    public ResurfaceColumnHandle(
             @JsonProperty("columnName") String columnName,
             @JsonProperty("columnType") Type columnType,
             @JsonProperty("ordinalPosition") int ordinalPosition) {
@@ -36,7 +36,7 @@ public class LocalFileColumnHandle implements ColumnHandle {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        LocalFileColumnHandle that = (LocalFileColumnHandle) o;
+        ResurfaceColumnHandle that = (ResurfaceColumnHandle) o;
         return Objects.equals(columnName, that.columnName) &&
                 Objects.equals(columnType, that.columnType) &&
                 Objects.equals(ordinalPosition, that.ordinalPosition);

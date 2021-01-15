@@ -17,8 +17,8 @@ import java.util.stream.Collectors;
 
 import static com.google.common.base.Preconditions.checkArgument;
 import static com.google.common.base.Preconditions.checkState;
-import static io.resurface.trino.connector.LocalFileErrorCode.LOCAL_FILE_FILESYSTEM_ERROR;
-import static io.resurface.trino.connector.LocalFileErrorCode.LOCAL_FILE_NO_FILES;
+import static io.resurface.trino.connector.ResurfaceErrorCode.RESURFACE_FILESYSTEM_ERROR;
+import static io.resurface.trino.connector.ResurfaceErrorCode.RESURFACE_NO_FILES;
 import static java.nio.file.Files.newDirectoryStream;
 import static java.util.Objects.requireNonNull;
 
@@ -56,13 +56,13 @@ final class DataLocation {
 
             List<File> files = builder.build();
             if (files.isEmpty())
-                throw new TrinoException(LOCAL_FILE_NO_FILES, "No matching files found in directory: " + location);
+                throw new TrinoException(RESURFACE_NO_FILES, "No matching files found in directory: " + location);
 
             return files.stream()
                     .sorted((o1, o2) -> Long.compare(o2.lastModified(), o1.lastModified()))
                     .collect(Collectors.toList());
         } catch (IOException e) {
-            throw new TrinoException(LOCAL_FILE_FILESYSTEM_ERROR, "Error listing files in directory: " + location, e);
+            throw new TrinoException(RESURFACE_FILESYSTEM_ERROR, "Error listing files in directory: " + location, e);
         }
     }
 

@@ -13,10 +13,10 @@ import java.util.List;
 import static com.google.common.base.MoreObjects.toStringHelper;
 import static java.util.Objects.requireNonNull;
 
-public class LocalFileSplit implements ConnectorSplit {
+public class ResurfaceSplit implements ConnectorSplit {
 
     @JsonCreator
-    public LocalFileSplit(@JsonProperty("address") HostAddress address) {
+    public ResurfaceSplit(@JsonProperty("address") HostAddress address) {
         this.address = requireNonNull(address, "address is null");
     }
 

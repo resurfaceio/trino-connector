@@ -12,11 +12,11 @@ import java.util.Map;
 
 import static io.airlift.configuration.testing.ConfigAssertions.*;
 
-public class TestLocalFileConfig {
+public class TestResurfaceConfig {
 
     @Test
     public void testDefaults() {
-        assertRecordedDefaults(recordDefaults(LocalFileConfig.class)
+        assertRecordedDefaults(recordDefaults(ResurfaceConfig.class)
                 .setHttpRequestLogLocation("var/log/http-request.log")
                 .setHttpRequestLogFileNamePattern(null));
     }
@@ -30,7 +30,7 @@ public class TestLocalFileConfig {
                 .put("trino-logs.http-request-log.pattern", "bar")
                 .build();
 
-        LocalFileConfig expected = new LocalFileConfig()
+        ResurfaceConfig expected = new ResurfaceConfig()
                 .setHttpRequestLogLocation(httpRequestLogFile.toString())
                 .setHttpRequestLogFileNamePattern("bar");
 
