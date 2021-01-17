@@ -2,29 +2,23 @@
 
 package io.resurface.trino.connector;
 
-import com.google.common.cache.CacheBuilder;
-import com.google.common.cache.CacheLoader;
-import com.google.common.cache.LoadingCache;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
-import com.google.common.util.concurrent.UncheckedExecutionException;
-import io.trino.spi.TrinoException;
 import io.trino.spi.connector.ColumnMetadata;
 import io.trino.spi.connector.SchemaTableName;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
 import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Throwables.throwIfInstanceOf;
-import static io.resurface.trino.connector.ResurfaceTables.HttpRequestLogTable.getSchemaTableName;
+import static io.resurface.trino.connector.ResurfaceTables.MessageTable.getSchemaTableName;
 import static io.trino.spi.type.BigintType.BIGINT;
-import static io.trino.spi.type.TimestampWithTimeZoneType.createTimestampWithTimeZoneType;
+import static io.trino.spi.type.IntegerType.INTEGER;
 import static io.trino.spi.type.VarcharType.createUnboundedVarcharType;
-import static java.util.concurrent.TimeUnit.SECONDS;
 
 public class ResurfaceTables {
 
@@ -46,23 +40,14 @@ public class ResurfaceTables {
             ResurfaceTableHandle tableHandle = new ResurfaceTableHandle(table);
 
             tablesBuilder.put(table, tableHandle);
-            tableColumnsBuilder.put(table, HttpRequestLogTable.getColumns());
+            tableColumnsBuilder.put(table, MessageTable.getColumns());
             dataLocationBuilder.put(table, dataLocation);
         }
 
         tables = tablesBuilder.build();
         tableColumns = tableColumnsBuilder.build();
         tableDataLocations = dataLocationBuilder.build();
-
-        cachedFiles = CacheBuilder.newBuilder()
-                .expireAfterWrite(10, SECONDS)
-                .build(CacheLoader.from(key -> tableDataLocations.get(key).files()));
     }
-
-    private final LoadingCache<SchemaTableName, List<File>> cachedFiles;
-    private final Map<SchemaTableName, List<ColumnMetadata>> tableColumns;
-    private final Map<SchemaTableName, DataLocation> tableDataLocations;
-    private final Map<SchemaTableName, ResurfaceTableHandle> tables;
 
     public List<ColumnMetadata> getColumns(ResurfaceTableHandle tableHandle) {
         checkArgument(tableColumns.containsKey(tableHandle.getSchemaTableName()), "Table '%s' not registered", tableHandle.getSchemaTableName());
@@ -70,12 +55,9 @@ public class ResurfaceTables {
     }
 
     public List<File> getFiles(SchemaTableName table) {
-        try {
-            return cachedFiles.getUnchecked(table);
-        } catch (UncheckedExecutionException e) {
-            throwIfInstanceOf(e.getCause(), TrinoException.class);
-            throw e;
-        }
+        List<File> result = new ArrayList<>();
+        result.add(new File("/Users/robfromboulder/Downloads/flukeserver.bin"));
+        return result;
     }
 
     public ResurfaceTableHandle getTable(SchemaTableName tableName) {
@@ -86,22 +68,39 @@ public class ResurfaceTables {
         return ImmutableList.copyOf(tables.keySet());
     }
 
-    public static final class HttpRequestLogTable {
+    private final Map<SchemaTableName, List<ColumnMetadata>> tableColumns;
+    private final Map<SchemaTableName, DataLocation> tableDataLocations;
+    private final Map<SchemaTableName, ResurfaceTableHandle> tables;
 
-        private static final List<ColumnMetadata> COLUMNS = ImmutableList.of(
-                new ColumnMetadata("timestamp", createTimestampWithTimeZoneType(3)),
-                new ColumnMetadata("client_address", createUnboundedVarcharType()),
-                new ColumnMetadata("method", createUnboundedVarcharType()),
-                new ColumnMetadata("request_uri", createUnboundedVarcharType()),
-                new ColumnMetadata("user", createUnboundedVarcharType()),
-                new ColumnMetadata("agent", createUnboundedVarcharType()),
-                new ColumnMetadata("response_code", BIGINT),
-                new ColumnMetadata("request_size", BIGINT),
-                new ColumnMetadata("response_size", BIGINT),
-                new ColumnMetadata("time_to_last_byte", BIGINT),
-                new ColumnMetadata("trace_token", createUnboundedVarcharType()));
+    public static final class MessageTable {
 
-        private static final String TABLE_NAME = "message";
+        public static final List<ColumnMetadata> COLUMNS = ImmutableList.of(
+                new ColumnMetadata("id", createUnboundedVarcharType()),                     // 0
+                new ColumnMetadata("agent_category", createUnboundedVarcharType()),         // 1
+                new ColumnMetadata("agent_device", createUnboundedVarcharType()),           // 2
+                new ColumnMetadata("agent_name", createUnboundedVarcharType()),             // 3
+                new ColumnMetadata("host", createUnboundedVarcharType()),                   // 4
+                new ColumnMetadata("interval_category", createUnboundedVarcharType()),      // 5
+                new ColumnMetadata("interval_clique", createUnboundedVarcharType()),        // 6
+                new ColumnMetadata("interval_millis", BIGINT),                              // 7
+                new ColumnMetadata("request_body", createUnboundedVarcharType()),           // 8
+                new ColumnMetadata("request_content_type", createUnboundedVarcharType()),   // 9
+                new ColumnMetadata("request_headers", createUnboundedVarcharType()),        // 10
+                new ColumnMetadata("request_method", createUnboundedVarcharType()),         // 11
+                new ColumnMetadata("request_params", createUnboundedVarcharType()),         // 12
+                new ColumnMetadata("request_url", createUnboundedVarcharType()),            // 13
+                new ColumnMetadata("request_user_agent", createUnboundedVarcharType()),     // 14
+                new ColumnMetadata("response_body", createUnboundedVarcharType()),          // 15
+                new ColumnMetadata("response_code", createUnboundedVarcharType()),          // 16
+                new ColumnMetadata("response_content_type", createUnboundedVarcharType()),  // 17
+                new ColumnMetadata("response_headers", createUnboundedVarcharType()),       // 18
+                new ColumnMetadata("response_time_millis", BIGINT),                         // 19
+                new ColumnMetadata("size_category", createUnboundedVarcharType()),          // 20
+                new ColumnMetadata("size_request", INTEGER),                                // 21
+                new ColumnMetadata("size_response", INTEGER)                                // 22
+        );
+
+        public static final String TABLE_NAME = "message";
 
         public static List<ColumnMetadata> getColumns() {
             return COLUMNS;

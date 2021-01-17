@@ -2,56 +2,37 @@
 
 package io.resurface.trino.connector;
 
-import com.google.common.base.Joiner;
-import com.google.common.base.Strings;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
+import io.resurface.binfiles.BinaryHttpMessage;
 import io.trino.spi.connector.RecordCursor;
 import io.trino.spi.connector.SchemaTableName;
 import io.trino.spi.type.Type;
 
 import java.io.*;
-import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-
-import static com.google.common.base.Preconditions.checkArgument;
-import static com.google.common.base.Preconditions.checkState;
-import static io.trino.spi.type.BigintType.BIGINT;
-import static io.trino.spi.type.DoubleType.DOUBLE;
-import static io.trino.spi.type.IntegerType.INTEGER;
-import static io.trino.spi.type.VarcharType.createUnboundedVarcharType;
-import static java.lang.String.format;
-import static java.util.Objects.requireNonNull;
 
 public class ResurfaceRecordCursor implements RecordCursor {
 
     public ResurfaceRecordCursor(ResurfaceTables tables, List<ResurfaceColumnHandle> columns, SchemaTableName tableName) {
-        this.columns = requireNonNull(columns, "columns is null");
-
-        fieldToColumnIndex = new int[columns.size()];
-        for (int i = 0; i < columns.size(); i++) {
-            ResurfaceColumnHandle handle = columns.get(i);
-            fieldToColumnIndex[i] = handle.getOrdinalPosition();
-        }
-
         try {
-            this.reader = new FilesReader(tables.getFiles(tableName).iterator());
+            this.columns = columns;
+            this.iterator = new FilesIterator(tables.getFiles(tableName).iterator());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
     private final List<ResurfaceColumnHandle> columns;
-    private final int[] fieldToColumnIndex;
-    private final FilesReader reader;
-    private List<String> fields;
+    private final FilesIterator iterator;
+    private BinaryHttpMessage message = new BinaryHttpMessage();
 
     @Override
     public boolean advanceNextPosition() {
         try {
-            fields = reader.readFields();
-            return fields != null;
+            iterator.readMessage();
+            return message != null;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
@@ -59,7 +40,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
 
     @Override
     public void close() {
-        reader.close();
+        iterator.close();
     }
 
     @Override
@@ -74,14 +55,23 @@ public class ResurfaceRecordCursor implements RecordCursor {
 
     @Override
     public double getDouble(int field) {
-        checkFieldType(field, DOUBLE);
-        return Double.parseDouble(getFieldValue(field));
+        throw new UnsupportedOperationException();
     }
 
     @Override
     public long getLong(int field) {
-        checkFieldType(field, BIGINT, INTEGER);
-        return Long.parseLong(getFieldValue(field));
+        switch (columns.get(field).getOrdinalPosition()) {
+            case 7:
+                return message.interval_millis;
+            case 19:
+                return message.response_time_millis;
+            case 21:
+                return message.size_request;
+            case 22:
+                return message.size_response;
+            default:
+                throw new IllegalArgumentException("Cannot get as long: " + columns.get(field).getColumnName());
+        }
     }
 
     @Override
@@ -96,95 +86,149 @@ public class ResurfaceRecordCursor implements RecordCursor {
 
     @Override
     public Slice getSlice(int field) {
-        checkFieldType(field, createUnboundedVarcharType());
-        return Slices.utf8Slice(getFieldValue(field));
+        switch (columns.get(field).getOrdinalPosition()) {
+            case 0:
+                return Slices.utf8Slice(new String(message.id));
+            case 1:
+                return Slices.utf8Slice(new String(message.agent_category));
+            case 2:
+                return Slices.utf8Slice(new String(message.agent_device));
+            case 3:
+                return Slices.utf8Slice(new String(message.agent_name));
+            case 4:
+                return Slices.utf8Slice(new String(message.host));
+            case 5:
+                return Slices.utf8Slice(new String(message.interval_category));
+            case 6:
+                return Slices.utf8Slice(new String(message.interval_clique));
+            case 8:
+                return Slices.utf8Slice(new String(message.request_body));
+            case 9:
+                return Slices.utf8Slice(new String(message.request_content_type));
+            case 10:
+                return Slices.utf8Slice(new String(message.request_headers));
+            case 11:
+                return Slices.utf8Slice(new String(message.request_method));
+            case 12:
+                return Slices.utf8Slice(new String(message.request_params));
+            case 13:
+                return Slices.utf8Slice(new String(message.request_url));
+            case 14:
+                return Slices.utf8Slice(new String(message.request_user_agent));
+            case 15:
+                return Slices.utf8Slice(new String(message.response_body));
+            case 16:
+                return Slices.utf8Slice(new String(message.response_code));
+            case 17:
+                return Slices.utf8Slice(new String(message.response_content_type));
+            case 18:
+                return Slices.utf8Slice(new String(message.response_headers));
+            case 20:
+                return Slices.utf8Slice(new String(message.size_category));
+            default:
+                throw new IllegalArgumentException("Cannot get as string: " + columns.get(field).getColumnName());
+        }
     }
 
     @Override
     public Type getType(int field) {
-        checkArgument(field < columns.size(), "Invalid field index");
         return columns.get(field).getColumnType();
     }
 
     @Override
     public boolean isNull(int field) {
-        checkArgument(field < columns.size(), "Invalid field index");
-        String fieldValue = getFieldValue(field);
-        return "null".equals(fieldValue) || Strings.isNullOrEmpty(fieldValue);
-    }
-
-    private void checkFieldType(int field, Type... expected) {
-        Type actual = getType(field);
-        for (Type type : expected) {
-            if (actual.equals(type)) return;
+        switch (columns.get(field).getOrdinalPosition()) {
+            case 0:
+                return message.id == null;
+            case 1:
+                return message.agent_category == null;
+            case 2:
+                return message.agent_device == null;
+            case 3:
+                return message.agent_name == null;
+            case 4:
+                return message.host == null;
+            case 5:
+                return message.interval_category == null;
+            case 6:
+                return message.interval_clique == null;
+            case 7:
+                return message.interval_millis == 0;
+            case 8:
+                return message.request_body == null;
+            case 9:
+                return message.request_content_type == null;
+            case 10:
+                return message.request_headers == null;
+            case 11:
+                return message.request_method == null;
+            case 12:
+                return message.request_params == null;
+            case 13:
+                return message.request_url == null;
+            case 14:
+                return message.request_user_agent == null;
+            case 15:
+                return message.response_body == null;
+            case 16:
+                return message.response_code == null;
+            case 17:
+                return message.response_content_type == null;
+            case 18:
+                return message.response_headers == null;
+            case 19:
+                return message.response_time_millis == 0;
+            case 20:
+                return message.size_category == null;
+            case 21:
+                return message.size_request == 0;
+            case 22:
+                return message.size_response == 0;
+            default:
+                throw new IllegalArgumentException("Invalid field index: " + field);
         }
-        String expectedTypes = Joiner.on(", ").join(expected);
-        throw new IllegalArgumentException(format("Expected field %s to be type %s but is %s", field, expectedTypes, actual));
     }
 
-    private String getFieldValue(int field) {
-        checkState(fields != null, "Cursor has not been advanced yet");
-        int index = fieldToColumnIndex[field];
-        if (index >= fields.size()) return null;
-        return fields.get(index);
-    }
+    private class FilesIterator {
 
-    private static class FilesReader {
-
-        public FilesReader(Iterator<File> files) throws IOException {
-            requireNonNull(files, "files is null");
+        public FilesIterator(Iterator<File> files) throws IOException {
             this.files = files;
-            reader = createNextReader();
+            this.stream = createNextStream();
+        }
+
+        public void close() {
+            if (stream != null) {
+                try {
+                    stream.close();
+                } catch (IOException ignored) {
+                    // nothing to do here
+                }
+            }
+        }
+
+        public void readMessage() throws IOException {
+            while (stream != null) {
+                try {
+                    message.read(stream);
+                    return;
+                } catch (EOFException eof) {
+                    stream.close();
+                    stream = createNextStream();
+                }
+            }
+            message = null;
+        }
+
+        private ObjectInputStream createNextStream() throws IOException {
+            if (!files.hasNext()) return null;
+            File file = files.next();
+            FileInputStream fis = new FileInputStream(file);
+            BufferedInputStream bis = new BufferedInputStream(fis, 1000000);
+            return new ObjectInputStream(bis);
         }
 
         private final Iterator<File> files;
-        private BufferedReader reader;
-
-        public void close() {
-            if (reader != null) {
-                try {
-                    reader.close();
-                } catch (IOException ignored) {
-                }
-            }
-        }
-
-        private BufferedReader createNextReader() throws IOException {
-            if (!files.hasNext()) return null;
-            File file = files.next();
-            FileInputStream fileInputStream = new FileInputStream(file);
-            return new BufferedReader(new InputStreamReader(fileInputStream));
-        }
-
-        public List<String> readFields() throws IOException {
-            List<String> fields = null;
-            boolean newReader = false;
-
-            while (fields == null) {
-                if (reader == null) return null;
-                String line = reader.readLine();
-                if (line != null) {
-                    fields = new ArrayList<>();
-                    fields.add(null);  // timestamp
-                    fields.add("192.168.4.61");
-                    fields.add("POST");
-                    fields.add("/v1/memory");
-                    fields.add("rdickinson");
-                    fields.add("myagent");
-                    fields.add("200");
-                    fields.add("73");
-                    fields.add("269");
-                    fields.add("2");
-                    fields.add("asdf1234");
-                    if (!newReader) return fields;
-                }
-                reader.close();
-                reader = createNextReader();
-                newReader = true;
-            }
-
-            return fields;
-        }
+        private ObjectInputStream stream;
 
     }
 
