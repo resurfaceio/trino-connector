@@ -88,43 +88,43 @@ public class ResurfaceRecordCursor implements RecordCursor {
     public Slice getSlice(int field) {
         switch (columns.get(field).getOrdinalPosition()) {
             case 0:
-                return Slices.utf8Slice(new String(message.id));
+                return Slices.wrappedBuffer(message.id);
             case 1:
-                return Slices.utf8Slice(new String(message.agent_category));
+                return Slices.wrappedBuffer(message.agent_category);
             case 2:
-                return Slices.utf8Slice(new String(message.agent_device));
+                return Slices.wrappedBuffer(message.agent_device);
             case 3:
-                return Slices.utf8Slice(new String(message.agent_name));
+                return Slices.wrappedBuffer(message.agent_name);
             case 4:
-                return Slices.utf8Slice(new String(message.host));
+                return Slices.wrappedBuffer(message.host);
             case 5:
-                return Slices.utf8Slice(new String(message.interval_category));
+                return Slices.wrappedBuffer(message.interval_category);
             case 6:
-                return Slices.utf8Slice(new String(message.interval_clique));
+                return Slices.wrappedBuffer(message.interval_clique);
             case 8:
-                return Slices.utf8Slice(new String(message.request_body));
+                return Slices.wrappedBuffer(message.request_body);
             case 9:
-                return Slices.utf8Slice(new String(message.request_content_type));
+                return Slices.wrappedBuffer(message.request_content_type);
             case 10:
-                return Slices.utf8Slice(new String(message.request_headers));
+                return Slices.wrappedBuffer(message.request_headers);
             case 11:
-                return Slices.utf8Slice(new String(message.request_method));
+                return Slices.wrappedBuffer(message.request_method);
             case 12:
-                return Slices.utf8Slice(new String(message.request_params));
+                return Slices.wrappedBuffer(message.request_params);
             case 13:
-                return Slices.utf8Slice(new String(message.request_url));
+                return Slices.wrappedBuffer(message.request_url);
             case 14:
-                return Slices.utf8Slice(new String(message.request_user_agent));
+                return Slices.wrappedBuffer(message.request_user_agent);
             case 15:
-                return Slices.utf8Slice(new String(message.response_body));
+                return Slices.wrappedBuffer(message.response_body);
             case 16:
-                return Slices.utf8Slice(new String(message.response_code));
+                return Slices.wrappedBuffer(message.response_code);
             case 17:
-                return Slices.utf8Slice(new String(message.response_content_type));
+                return Slices.wrappedBuffer(message.response_content_type);
             case 18:
-                return Slices.utf8Slice(new String(message.response_headers));
+                return Slices.wrappedBuffer(message.response_headers);
             case 20:
-                return Slices.utf8Slice(new String(message.size_category));
+                return Slices.wrappedBuffer(message.size_category);
             default:
                 throw new IllegalArgumentException("Cannot get as string: " + columns.get(field).getColumnName());
         }
@@ -224,7 +224,11 @@ public class ResurfaceRecordCursor implements RecordCursor {
             File file = files.next();
             FileInputStream fis = new FileInputStream(file);
             BufferedInputStream bis = new BufferedInputStream(fis, 1000000);
-            return new ObjectInputStream(bis);
+            try {
+                return new ObjectInputStream(bis);
+            } catch (EOFException eof) {
+                return createNextStream();
+            }
         }
 
         private final Iterator<File> files;
