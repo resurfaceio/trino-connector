@@ -56,7 +56,8 @@ public class ResurfaceTables {
 
     public List<File> getFiles(SchemaTableName table) {
         List<File> result = new ArrayList<>();
-        result.add(new File("/Users/robfromboulder/Downloads/flukeserver.bin"));
+        result.add(new File("/usr/local/var/resurface/data/flukeserver.bin"));
+//        result.add(new File("/Users/robfromboulder/Downloads/flukeserver.bin"));
         return result;
     }
 
