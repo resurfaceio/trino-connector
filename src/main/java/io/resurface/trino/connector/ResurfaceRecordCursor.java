@@ -66,9 +66,9 @@ public class ResurfaceRecordCursor implements RecordCursor {
             case 19:
                 return message.response_time_millis;
             case 21:
-                return message.size_request;
+                return message.size_request_bytes;
             case 22:
-                return message.size_response;
+                return message.size_response_bytes;
             default:
                 throw new IllegalArgumentException("Cannot get as long: " + columns.get(field).getColumnName());
         }
@@ -181,9 +181,9 @@ public class ResurfaceRecordCursor implements RecordCursor {
             case 20:
                 return message.size_category == null;
             case 21:
-                return message.size_request == 0;
+                return message.size_request_bytes == 0;
             case 22:
-                return message.size_response == 0;
+                return message.size_response_bytes == 0;
             default:
                 throw new IllegalArgumentException("Invalid field index: " + field);
         }

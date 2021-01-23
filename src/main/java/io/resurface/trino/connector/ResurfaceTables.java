@@ -97,8 +97,8 @@ public class ResurfaceTables {
                 new ColumnMetadata("response_headers", createUnboundedVarcharType()),       // 18
                 new ColumnMetadata("response_time_millis", BIGINT),                         // 19
                 new ColumnMetadata("size_category", createUnboundedVarcharType()),          // 20
-                new ColumnMetadata("size_request", INTEGER),                                // 21
-                new ColumnMetadata("size_response", INTEGER)                                // 22
+                new ColumnMetadata("size_request_bytes", INTEGER),                          // 21
+                new ColumnMetadata("size_response_bytes", INTEGER)                          // 22
         );
 
         public static final String TABLE_NAME = "message";
