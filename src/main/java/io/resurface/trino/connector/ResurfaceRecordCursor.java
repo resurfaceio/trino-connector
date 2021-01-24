@@ -5,6 +5,7 @@ package io.resurface.trino.connector;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
 import io.resurface.binfiles.BinaryHttpMessage;
+import io.resurface.binfiles.BinaryHttpMessageField;
 import io.trino.spi.connector.RecordCursor;
 import io.trino.spi.connector.SchemaTableName;
 import io.trino.spi.type.Type;
@@ -88,46 +89,50 @@ public class ResurfaceRecordCursor implements RecordCursor {
     public Slice getSlice(int field) {
         switch (columns.get(field).getOrdinalPosition()) {
             case 0:
-                return Slices.wrappedBuffer(message.id);
+                return getSliceFromField(message.id);
             case 1:
-                return Slices.wrappedBuffer(message.agent_category);
+                return getSliceFromField(message.agent_category);
             case 2:
-                return Slices.wrappedBuffer(message.agent_device);
+                return getSliceFromField(message.agent_device);
             case 3:
-                return Slices.wrappedBuffer(message.agent_name);
+                return getSliceFromField(message.agent_name);
             case 4:
-                return Slices.wrappedBuffer(message.host);
+                return getSliceFromField(message.host);
             case 5:
-                return Slices.wrappedBuffer(message.interval_category);
+                return getSliceFromField(message.interval_category);
             case 6:
-                return Slices.wrappedBuffer(message.interval_clique);
+                return getSliceFromField(message.interval_clique);
             case 8:
-                return Slices.wrappedBuffer(message.request_body);
+                return getSliceFromField(message.request_body);
             case 9:
-                return Slices.wrappedBuffer(message.request_content_type);
+                return getSliceFromField(message.request_content_type);
             case 10:
-                return Slices.wrappedBuffer(message.request_headers);
+                return getSliceFromField(message.request_headers);
             case 11:
-                return Slices.wrappedBuffer(message.request_method);
+                return getSliceFromField(message.request_method);
             case 12:
-                return Slices.wrappedBuffer(message.request_params);
+                return getSliceFromField(message.request_params);
             case 13:
-                return Slices.wrappedBuffer(message.request_url);
+                return getSliceFromField(message.request_url);
             case 14:
-                return Slices.wrappedBuffer(message.request_user_agent);
+                return getSliceFromField(message.request_user_agent);
             case 15:
-                return Slices.wrappedBuffer(message.response_body);
+                return getSliceFromField(message.response_body);
             case 16:
-                return Slices.wrappedBuffer(message.response_code);
+                return getSliceFromField(message.response_code);
             case 17:
-                return Slices.wrappedBuffer(message.response_content_type);
+                return getSliceFromField(message.response_content_type);
             case 18:
-                return Slices.wrappedBuffer(message.response_headers);
+                return getSliceFromField(message.response_headers);
             case 20:
-                return Slices.wrappedBuffer(message.size_category);
+                return getSliceFromField(message.size_category);
             default:
                 throw new IllegalArgumentException("Cannot get as string: " + columns.get(field).getColumnName());
         }
+    }
+
+    private Slice getSliceFromField(BinaryHttpMessageField field) {
+        return field.len == 0 ? Slices.EMPTY_SLICE : Slices.wrappedBuffer(field.buffer, 0, field.len);
     }
 
     @Override
@@ -139,47 +144,47 @@ public class ResurfaceRecordCursor implements RecordCursor {
     public boolean isNull(int field) {
         switch (columns.get(field).getOrdinalPosition()) {
             case 0:
-                return message.id == null;
+                return message.id.len == 0;
             case 1:
-                return message.agent_category == null;
+                return message.agent_category.len == 0;
             case 2:
-                return message.agent_device == null;
+                return message.agent_device.len == 0;
             case 3:
-                return message.agent_name == null;
+                return message.agent_name.len == 0;
             case 4:
-                return message.host == null;
+                return message.host.len == 0;
             case 5:
-                return message.interval_category == null;
+                return message.interval_category.len == 0;
             case 6:
-                return message.interval_clique == null;
+                return message.interval_clique.len == 0;
             case 7:
                 return message.interval_millis == 0;
             case 8:
-                return message.request_body == null;
+                return message.request_body.len == 0;
             case 9:
-                return message.request_content_type == null;
+                return message.request_content_type.len == 0;
             case 10:
-                return message.request_headers == null;
+                return message.request_headers.len == 0;
             case 11:
-                return message.request_method == null;
+                return message.request_method.len == 0;
             case 12:
-                return message.request_params == null;
+                return message.request_params.len == 0;
             case 13:
-                return message.request_url == null;
+                return message.request_url.len == 0;
             case 14:
-                return message.request_user_agent == null;
+                return message.request_user_agent.len == 0;
             case 15:
-                return message.response_body == null;
+                return message.response_body.len == 0;
             case 16:
-                return message.response_code == null;
+                return message.response_code.len == 0;
             case 17:
-                return message.response_content_type == null;
+                return message.response_content_type.len == 0;
             case 18:
-                return message.response_headers == null;
+                return message.response_headers.len == 0;
             case 19:
                 return message.response_time_millis == 0;
             case 20:
-                return message.size_category == null;
+                return message.size_category.len == 0;
             case 21:
                 return message.size_request_bytes == 0;
             case 22:
