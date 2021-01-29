@@ -18,14 +18,23 @@ public class ResurfaceRecordCursor implements RecordCursor {
 
     public ResurfaceRecordCursor(ResurfaceTables tables, List<ResurfaceColumnHandle> columns, SchemaTableName tableName) {
         try {
-            this.columns = columns;
+            this.column_names = new String[columns.size()];
+            this.column_ordinal_positions = new int[columns.size()];
+            this.column_types = new Type[columns.size()];
+            for (int i = 0; i < columns.size(); i++) {
+                this.column_names[i] = columns.get(i).getColumnName();
+                this.column_ordinal_positions[i] = columns.get(i).getOrdinalPosition();
+                this.column_types[i] = columns.get(i).getColumnType();
+            }
             this.iterator = new FilesIterator(tables.getFiles(tableName).iterator());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
-    private final List<ResurfaceColumnHandle> columns;
+    private final String[] column_names;
+    private final int[] column_ordinal_positions;
+    private final Type[] column_types;
     private final FilesIterator iterator;
     private BinaryHttpMessage message = new BinaryHttpMessage();
 
@@ -61,7 +70,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
 
     @Override
     public long getLong(int field) {
-        switch (columns.get(field).getOrdinalPosition()) {
+        switch (column_ordinal_positions[field]) {
             case 7:
                 return message.interval_millis;
             case 19:
@@ -71,7 +80,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
             case 22:
                 return message.size_response_bytes;
             default:
-                throw new IllegalArgumentException("Cannot get as long: " + columns.get(field).getColumnName());
+                throw new IllegalArgumentException("Cannot get as long: " + column_names[field]);
         }
     }
 
@@ -87,7 +96,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
 
     @Override
     public Slice getSlice(int field) {
-        switch (columns.get(field).getOrdinalPosition()) {
+        switch (column_ordinal_positions[field]) {
             case 0:
                 return getSliceFromField(message.id);
             case 1:
@@ -127,7 +136,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
             case 20:
                 return getSliceFromField(message.size_category);
             default:
-                throw new IllegalArgumentException("Cannot get as string: " + columns.get(field).getColumnName());
+                throw new IllegalArgumentException("Cannot get as string: " + column_names[field]);
         }
     }
 
@@ -137,12 +146,12 @@ public class ResurfaceRecordCursor implements RecordCursor {
 
     @Override
     public Type getType(int field) {
-        return columns.get(field).getColumnType();
+        return column_types[field];
     }
 
     @Override
     public boolean isNull(int field) {
-        switch (columns.get(field).getOrdinalPosition()) {
+        switch (column_ordinal_positions[field]) {
             case 0:
                 return message.id.len == 0;
             case 1:
