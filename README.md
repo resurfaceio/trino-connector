@@ -26,5 +26,5 @@ rm -rf $TRINO_HOME/plugin/resurface
 cp -r ./target/resurfaceio-trino-connector-2.0.0 $TRINO_HOME/plugin/resurface
 
 5. Start Trino
-bash bin/laucher run
+bash bin/launcher run
 ```
