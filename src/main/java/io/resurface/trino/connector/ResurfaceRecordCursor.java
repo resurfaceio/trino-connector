@@ -5,7 +5,7 @@ package io.resurface.trino.connector;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
 import io.resurface.binfiles.BinaryHttpMessage;
-import io.resurface.binfiles.BinaryHttpMessageField;
+import io.resurface.binfiles.BinaryHttpMessageString;
 import io.trino.spi.connector.RecordCursor;
 import io.trino.spi.connector.SchemaTableName;
 import io.trino.spi.type.Type;
@@ -72,13 +72,13 @@ public class ResurfaceRecordCursor implements RecordCursor {
     public long getLong(int field) {
         switch (column_ordinal_positions[field]) {
             case 7:
-                return message.interval_millis;
+                return message.interval_millis.value();
             case 19:
-                return message.response_time_millis;
+                return message.response_time_millis.value();
             case 21:
-                return message.size_request_bytes;
+                return message.size_request_bytes.value();
             case 22:
-                return message.size_response_bytes;
+                return message.size_response_bytes.value();
             default:
                 throw new IllegalArgumentException("Cannot get as long: " + column_names[field]);
         }
@@ -140,8 +140,9 @@ public class ResurfaceRecordCursor implements RecordCursor {
         }
     }
 
-    private Slice getSliceFromField(BinaryHttpMessageField field) {
-        return field.len == 0 ? Slices.EMPTY_SLICE : Slices.wrappedBuffer(field.buffer, 0, field.len);
+    private Slice getSliceFromField(BinaryHttpMessageString field) {
+        int len = field.length();
+        return len == 0 ? Slices.EMPTY_SLICE : Slices.wrappedBuffer(field.buffer(), 0, len);
     }
 
     @Override
@@ -153,51 +154,51 @@ public class ResurfaceRecordCursor implements RecordCursor {
     public boolean isNull(int field) {
         switch (column_ordinal_positions[field]) {
             case 0:
-                return message.id.len == 0;
+                return message.id.length() == 0;
             case 1:
-                return message.agent_category.len == 0;
+                return message.agent_category.length() == 0;
             case 2:
-                return message.agent_device.len == 0;
+                return message.agent_device.length() == 0;
             case 3:
-                return message.agent_name.len == 0;
+                return message.agent_name.length() == 0;
             case 4:
-                return message.host.len == 0;
+                return message.host.length() == 0;
             case 5:
-                return message.interval_category.len == 0;
+                return message.interval_category.length() == 0;
             case 6:
-                return message.interval_clique.len == 0;
+                return message.interval_clique.length() == 0;
             case 7:
-                return message.interval_millis == 0;
+                return message.interval_millis.value() == 0;
             case 8:
-                return message.request_body.len == 0;
+                return message.request_body.length() == 0;
             case 9:
-                return message.request_content_type.len == 0;
+                return message.request_content_type.length() == 0;
             case 10:
-                return message.request_headers.len == 0;
+                return message.request_headers.length() == 0;
             case 11:
-                return message.request_method.len == 0;
+                return message.request_method.length() == 0;
             case 12:
-                return message.request_params.len == 0;
+                return message.request_params.length() == 0;
             case 13:
-                return message.request_url.len == 0;
+                return message.request_url.length() == 0;
             case 14:
-                return message.request_user_agent.len == 0;
+                return message.request_user_agent.length() == 0;
             case 15:
-                return message.response_body.len == 0;
+                return message.response_body.length() == 0;
             case 16:
-                return message.response_code.len == 0;
+                return message.response_code.length() == 0;
             case 17:
-                return message.response_content_type.len == 0;
+                return message.response_content_type.length() == 0;
             case 18:
-                return message.response_headers.len == 0;
+                return message.response_headers.length() == 0;
             case 19:
-                return message.response_time_millis == 0;
+                return message.response_time_millis.value() == 0;
             case 20:
-                return message.size_category.len == 0;
+                return message.size_category.length() == 0;
             case 21:
-                return message.size_request_bytes == 0;
+                return message.size_request_bytes.value() == 0;
             case 22:
-                return message.size_response_bytes == 0;
+                return message.size_response_bytes.value() == 0;
             default:
                 throw new IllegalArgumentException("Invalid field index: " + field);
         }
