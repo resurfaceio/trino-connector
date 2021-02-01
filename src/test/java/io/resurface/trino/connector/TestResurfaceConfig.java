@@ -16,24 +16,18 @@ public class TestResurfaceConfig {
 
     @Test
     public void testDefaults() {
-        assertRecordedDefaults(recordDefaults(ResurfaceConfig.class)
-                .setHttpRequestLogLocation("var/log/http-request.log")
-                .setHttpRequestLogFileNamePattern(null));
+        assertRecordedDefaults(recordDefaults(ResurfaceConfig.class).setMessagesDir(null));
     }
 
     @Test
     public void testExplicitPropertyMappings() throws IOException {
-        Path httpRequestLogFile = Files.createTempFile(null, null);
+        Path tmpfile = Files.createTempFile(null, null);
 
         Map<String, String> properties = new ImmutableMap.Builder<String, String>()
-                .put("trino-logs.http-request-log.location", httpRequestLogFile.toString())
-                .put("trino-logs.http-request-log.pattern", "bar")
+                .put("resurface.messages.dir", tmpfile.toString())
                 .build();
 
-        ResurfaceConfig expected = new ResurfaceConfig()
-                .setHttpRequestLogLocation(httpRequestLogFile.toString())
-                .setHttpRequestLogFileNamePattern("bar");
-
+        ResurfaceConfig expected = new ResurfaceConfig().setMessagesDir(tmpfile.toString());
         assertFullMapping(properties, expected);
     }
 

@@ -9,13 +9,10 @@ import io.trino.spi.connector.SchemaTableName;
 
 import javax.inject.Inject;
 import java.io.File;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
+import java.util.stream.Collectors;
 
-import static com.google.common.base.Preconditions.checkArgument;
-import static io.resurface.trino.connector.ResurfaceTables.MessageTable.getSchemaTableName;
 import static io.trino.spi.type.BigintType.BIGINT;
 import static io.trino.spi.type.IntegerType.INTEGER;
 import static io.trino.spi.type.VarcharType.createUnboundedVarcharType;
@@ -24,41 +21,30 @@ public class ResurfaceTables {
 
     @Inject
     public ResurfaceTables(ResurfaceConfig config) {
-        ImmutableMap.Builder<SchemaTableName, DataLocation> dataLocationBuilder = ImmutableMap.builder();
+        location = new DataLocation(config.getMessagesDir());
+        SchemaTableName table = MessageTable.getSchemaTableName();
+
         ImmutableMap.Builder<SchemaTableName, ResurfaceTableHandle> tablesBuilder = ImmutableMap.builder();
-        ImmutableMap.Builder<SchemaTableName, List<ColumnMetadata>> tableColumnsBuilder = ImmutableMap.builder();
-
-        String httpRequestLogLocation = config.getHttpRequestLogLocation();
-        if (httpRequestLogLocation != null) {
-            Optional<String> pattern = Optional.empty();
-            if (config.getHttpRequestLogFileNamePattern() != null) {
-                pattern = Optional.of(config.getHttpRequestLogFileNamePattern());
-            }
-
-            SchemaTableName table = getSchemaTableName();
-            DataLocation dataLocation = new DataLocation(httpRequestLogLocation, pattern);
-            ResurfaceTableHandle tableHandle = new ResurfaceTableHandle(table);
-
-            tablesBuilder.put(table, tableHandle);
-            tableColumnsBuilder.put(table, MessageTable.getColumns());
-            dataLocationBuilder.put(table, dataLocation);
-        }
-
+        tablesBuilder.put(table, new ResurfaceTableHandle(table));
         tables = tablesBuilder.build();
+
+        ImmutableMap.Builder<SchemaTableName, List<ColumnMetadata>> tableColumnsBuilder = ImmutableMap.builder();
+        tableColumnsBuilder.put(table, MessageTable.getColumns());
         tableColumns = tableColumnsBuilder.build();
-        tableDataLocations = dataLocationBuilder.build();
     }
 
+    private final DataLocation location;
+    private final Map<SchemaTableName, ResurfaceTableHandle> tables;
+    private final Map<SchemaTableName, List<ColumnMetadata>> tableColumns;
+
     public List<ColumnMetadata> getColumns(ResurfaceTableHandle tableHandle) {
-        checkArgument(tableColumns.containsKey(tableHandle.getSchemaTableName()), "Table '%s' not registered", tableHandle.getSchemaTableName());
         return tableColumns.get(tableHandle.getSchemaTableName());
     }
 
     public List<File> getFiles(SchemaTableName table) {
-        List<File> result = new ArrayList<>();
-        result.add(new File("/usr/local/var/resurface/data/flukeserver.bin"));
-//        result.add(new File("/Users/robfromboulder/Downloads/flukeserver.bin"));
-        return result;
+        return location.files().stream()
+                .filter(f -> !f.isHidden())
+                .collect(Collectors.toList());
     }
 
     public ResurfaceTableHandle getTable(SchemaTableName tableName) {
@@ -68,10 +54,6 @@ public class ResurfaceTables {
     public List<SchemaTableName> getTables() {
         return ImmutableList.copyOf(tables.keySet());
     }
-
-    private final Map<SchemaTableName, List<ColumnMetadata>> tableColumns;
-    private final Map<SchemaTableName, DataLocation> tableDataLocations;
-    private final Map<SchemaTableName, ResurfaceTableHandle> tables;
 
     public static final class MessageTable {
 
