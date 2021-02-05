@@ -38,4 +38,17 @@ mvn versions:display-dependency-updates
 
 ## Release Process
 
-???
+Push artifacts to Cloudsmith:
+
+```bash
+bash deploy.sh 2.x.x
+```
+
+Tag release version:
+
+```bash
+git tag v2.x.x
+git push origin master --tags
+```
+
+Start the next version by incrementing the version number. (search and replace)
