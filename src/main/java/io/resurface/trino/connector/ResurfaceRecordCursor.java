@@ -237,11 +237,11 @@ public class ResurfaceRecordCursor implements RecordCursor {
         private ObjectInputStream createNextStream() throws IOException {
             if (!files.hasNext()) return null;
             File file = files.next();
-            FileInputStream fis = new FileInputStream(file);
-            BufferedInputStream bis = new BufferedInputStream(fis, 1000000);
             try {
+                FileInputStream fis = new FileInputStream(file);
+                BufferedInputStream bis = new BufferedInputStream(fis, 1000000);
                 return new ObjectInputStream(bis);
-            } catch (EOFException eof) {
+            } catch (EOFException | FileNotFoundException e) {
                 return createNextStream();
             }
         }
