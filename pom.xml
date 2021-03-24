@@ -94,7 +94,7 @@
         <dependency>
             <groupId>io.trino</groupId>
             <artifactId>trino-spi</artifactId>
-            <version>353</version>
+            <version>354</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -114,13 +114,13 @@
         <dependency>
             <groupId>io.trino</groupId>
             <artifactId>trino-main</artifactId>
-            <version>353</version>
+            <version>354</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.trino</groupId>
             <artifactId>trino-testing</artifactId>
-            <version>353</version>
+            <version>354</version>
             <scope>test</scope>
         </dependency>
         <dependency>
