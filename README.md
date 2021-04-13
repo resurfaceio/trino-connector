@@ -23,7 +23,7 @@ mvn package
 
 4. Copy output to Trino
 rm -rf $TRINO_HOME/plugin/resurface
-cp -r ./target/resurfaceio-trino-connector-2.2.1 $TRINO_HOME/plugin/resurface
+cp -r ./target/resurfaceio-trino-connector-2.3.0 $TRINO_HOME/plugin/resurface
 
 5. Start Trino
 bash bin/launcher run
