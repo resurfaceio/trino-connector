@@ -36,7 +36,7 @@ public class ResurfaceMetadata implements ConnectorMetadata {
         TupleDomain<ColumnHandle> newDomain = oldDomain.intersect(constraint.getSummary());
         if (oldDomain.equals(newDomain)) return Optional.empty();
         handle = new ResurfaceTableHandle(handle.getSchemaTableName(), newDomain);
-        return Optional.of(new ConstraintApplicationResult<>(handle, constraint.getSummary()));
+        return Optional.of(new ConstraintApplicationResult<>(handle, constraint.getSummary(), false));
     }
 
     @Override
