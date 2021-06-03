@@ -62,17 +62,17 @@
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>bootstrap</artifactId>
-            <version>204</version>
+            <version>206</version>
         </dependency>
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>configuration</artifactId>
-            <version>204</version>
+            <version>206</version>
         </dependency>
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>json</artifactId>
-            <version>204</version>
+            <version>206</version>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
