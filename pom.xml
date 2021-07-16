@@ -62,17 +62,17 @@
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>bootstrap</artifactId>
-            <version>206</version>
+            <version>207</version>
         </dependency>
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>configuration</artifactId>
-            <version>206</version>
+            <version>207</version>
         </dependency>
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>json</artifactId>
-            <version>206</version>
+            <version>207</version>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
@@ -94,7 +94,7 @@
         <dependency>
             <groupId>io.trino</groupId>
             <artifactId>trino-spi</artifactId>
-            <version>358</version>
+            <version>359</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -114,13 +114,13 @@
         <dependency>
             <groupId>io.trino</groupId>
             <artifactId>trino-main</artifactId>
-            <version>358</version>
+            <version>359</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.trino</groupId>
             <artifactId>trino-testing</artifactId>
-            <version>358</version>
+            <version>359</version>
             <scope>test</scope>
         </dependency>
         <dependency>
