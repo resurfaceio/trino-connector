@@ -8,12 +8,10 @@ Custom connector for Trino
 
 ## Configuring local environment
 
-This connector is built on Jenkins and packaged into our containers, but it's easy to build/deploy a local version.
-
 ```
 1. Install Trino
 download and expand tarball to local directory
-define TRINO_HOME environment variable
+export TRINO_HOME=$HOME/...
 
 2. Create $TRINO_HOME/etc/catalog/resurface.properties:
 connector.name=resurface
