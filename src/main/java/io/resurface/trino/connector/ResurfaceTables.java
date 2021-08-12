@@ -91,7 +91,7 @@ public class ResurfaceTables {
         }
 
         public static SchemaTableName getSchemaTableName() {
-            return new SchemaTableName(ResurfaceMetadata.SCHEMA_NAME, TABLE_NAME);
+            return new SchemaTableName(ResurfaceMetadata.SCHEMA_DATA, TABLE_NAME);
         }
 
     }

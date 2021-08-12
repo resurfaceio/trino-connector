@@ -4,21 +4,29 @@ package io.resurface.trino.connector;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import com.google.common.collect.Maps;
+import io.trino.spi.TrinoException;
 import io.trino.spi.connector.*;
 import io.trino.spi.predicate.TupleDomain;
 
 import javax.inject.Inject;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import static com.google.common.collect.ImmutableList.toImmutableList;
+import static io.trino.spi.StandardErrorCode.ALREADY_EXISTS;
+import static io.trino.spi.StandardErrorCode.READ_ONLY_VIOLATION;
 import static java.util.Objects.requireNonNull;
 
 public class ResurfaceMetadata implements ConnectorMetadata {
 
-    public static final String SCHEMA_NAME = "data";
+    public static final String SCHEMA_DATA = "data";
 
-    public static final List<String> SCHEMA_NAMES = ImmutableList.of(SCHEMA_NAME);
+    public static final String SCHEMA_RUNTIME = "runtime";
+
+    public static final List<String> SCHEMA_NAMES = ImmutableList.of(SCHEMA_DATA, SCHEMA_RUNTIME);
 
     @Inject
     public ResurfaceMetadata(ResurfaceTables tables) {
@@ -26,6 +34,7 @@ public class ResurfaceMetadata implements ConnectorMetadata {
     }
 
     private final ResurfaceTables tables;
+    private final Map<SchemaTableName, ConnectorViewDefinition> views = new HashMap<>();
 
     @Override
     public Optional<ConstraintApplicationResult<ConnectorTableHandle>> applyFilter(ConnectorSession session,
@@ -95,7 +104,13 @@ public class ResurfaceMetadata implements ConnectorMetadata {
 
     @Override
     public List<SchemaTableName> listTables(ConnectorSession session, Optional<String> schemaName) {
-        return tables.getTables();
+        System.out.println("!!!!! [ResurfaceMetadata] listTables");
+        ImmutableList.Builder<SchemaTableName> builder = ImmutableList.builder();
+        builder.add(new SchemaTableName(SCHEMA_DATA, "message"));
+        views.keySet().stream()
+                .filter(table -> schemaName.map(table.getSchemaName()::contentEquals).orElse(true))
+                .forEach(builder::add);
+        return builder.build();
     }
 
     private List<SchemaTableName> listTables(ConnectorSession session, SchemaTablePrefix prefix) {
@@ -109,6 +124,60 @@ public class ResurfaceMetadata implements ConnectorMetadata {
     @Override
     public boolean usesLegacyTableLayouts() {
         return false;
+    }
+
+    @Override
+    public synchronized void createView(ConnectorSession session, SchemaTableName viewName, ConnectorViewDefinition definition, boolean replace) {
+        System.out.println("!!!!! [ResurfaceMetadata] createView");
+        if (!viewName.getSchemaName().equals(SCHEMA_RUNTIME)) {
+            throw new TrinoException(READ_ONLY_VIOLATION, "Schema is ready only: " + viewName);
+        } else if (replace) {
+            views.put(viewName, definition);
+        } else if (views.putIfAbsent(viewName, definition) != null) {
+            throw new TrinoException(ALREADY_EXISTS, "View already exists: " + viewName);
+        }
+    }
+
+    @Override
+    public synchronized void dropView(ConnectorSession session, SchemaTableName viewName) {
+        System.out.println("!!!!! [ResurfaceMetadata] dropView");
+        if (!viewName.getSchemaName().equals(SCHEMA_RUNTIME)) {
+            throw new TrinoException(READ_ONLY_VIOLATION, "Schema is ready only: " + viewName);
+        } else if (views.remove(viewName) == null) {
+            throw new ViewNotFoundException(viewName);
+        }
+    }
+
+    @Override
+    public synchronized Map<SchemaTableName, ConnectorViewDefinition> getViews(ConnectorSession session, Optional<String> schemaName) {
+        System.out.println("!!!!! [ResurfaceMetadata] getViews");
+        SchemaTablePrefix prefix = schemaName.map(SchemaTablePrefix::new).orElseGet(SchemaTablePrefix::new);
+        return ImmutableMap.copyOf(Maps.filterKeys(views, prefix::matches));
+    }
+
+    @Override
+    public synchronized Optional<ConnectorViewDefinition> getView(ConnectorSession session, SchemaTableName viewName) {
+        System.out.println("!!!!! [ResurfaceMetadata] getView");
+        return Optional.ofNullable(views.get(viewName));
+    }
+
+    @Override
+    public synchronized List<SchemaTableName> listViews(ConnectorSession session, Optional<String> schemaName) {
+        System.out.println("!!!!! [ResurfaceMetadata] listViews");
+        return views.keySet().stream()
+                .filter(viewName -> schemaName.map(viewName.getSchemaName()::equals).orElse(true))
+                .collect(toImmutableList());
+    }
+
+    @Override
+    public synchronized void renameView(ConnectorSession session, SchemaTableName viewName, SchemaTableName newViewName) {
+        System.out.println("!!!!! [ResurfaceMetadata] renameView");
+        if (!viewName.getSchemaName().equals(SCHEMA_RUNTIME)) {
+            throw new TrinoException(READ_ONLY_VIOLATION, "Schema is ready only: " + viewName);
+        } else if (views.containsKey(newViewName)) {
+            throw new TrinoException(ALREADY_EXISTS, "View already exists: " + newViewName);
+        }
+        views.put(newViewName, views.remove(viewName));
     }
 
 }
