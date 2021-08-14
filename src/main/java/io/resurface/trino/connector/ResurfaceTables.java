@@ -31,11 +31,14 @@ public class ResurfaceTables {
         ImmutableMap.Builder<SchemaTableName, List<ColumnMetadata>> tableColumnsBuilder = ImmutableMap.builder();
         tableColumnsBuilder.put(table, MessageTable.getColumns());
         tableColumns = tableColumnsBuilder.build();
+
+        viewsDir = config.getViewsDir();
     }
 
     private final DataLocation location;
     private final Map<SchemaTableName, ResurfaceTableHandle> tables;
     private final Map<SchemaTableName, List<ColumnMetadata>> tableColumns;
+    private final String viewsDir;
 
     public List<ColumnMetadata> getColumns(ResurfaceTableHandle tableHandle) {
         return tableColumns.get(tableHandle.getSchemaTableName());
@@ -51,8 +54,8 @@ public class ResurfaceTables {
         return tables.get(tableName);
     }
 
-    public List<SchemaTableName> getTables() {
-        return ImmutableList.copyOf(tables.keySet());
+    public String getViewsDir() {
+        return viewsDir;
     }
 
     public static final class MessageTable {

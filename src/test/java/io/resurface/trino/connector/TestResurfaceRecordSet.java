@@ -19,7 +19,7 @@ import static org.testng.Assert.assertTrue;
 public class TestResurfaceRecordSet {
 
     @Test
-    public void testExampleData() {
+    public void testExampleMessages() {
         String location = getClass().getClassLoader().getResource("example-data").getPath();
         ResurfaceTables tables = new ResurfaceTables(new ResurfaceConfig().setMessagesDir(location));
         ResurfaceMetadata metadata = new ResurfaceMetadata(tables);
@@ -64,6 +64,11 @@ public class TestResurfaceRecordSet {
         assertEquals(cursor.getLong(23), 45);
 
         assertFalse(cursor.advanceNextPosition());
+    }
+
+    @Test
+    public void testExampleViews() {
+
     }
 
 }

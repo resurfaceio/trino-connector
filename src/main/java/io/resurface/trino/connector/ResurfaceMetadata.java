@@ -2,6 +2,9 @@
 
 package io.resurface.trino.connector;
 
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jdk8.Jdk8Module;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
@@ -10,14 +13,20 @@ import io.trino.spi.connector.*;
 import io.trino.spi.predicate.TupleDomain;
 
 import javax.inject.Inject;
+import java.io.File;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import static com.google.common.collect.ImmutableList.toImmutableList;
-import static io.trino.spi.StandardErrorCode.ALREADY_EXISTS;
-import static io.trino.spi.StandardErrorCode.READ_ONLY_VIOLATION;
+import static io.resurface.trino.connector.ResurfaceTables.MessageTable.TABLE_NAME;
+import static io.trino.spi.StandardErrorCode.*;
 import static java.util.Objects.requireNonNull;
 
 public class ResurfaceMetadata implements ConnectorMetadata {
@@ -31,6 +40,7 @@ public class ResurfaceMetadata implements ConnectorMetadata {
     @Inject
     public ResurfaceMetadata(ResurfaceTables tables) {
         this.tables = requireNonNull(tables, "tables is null");
+        if (tables.getViewsDir() != null) buildViews();
     }
 
     private final ResurfaceTables tables;
@@ -93,32 +103,19 @@ public class ResurfaceMetadata implements ConnectorMetadata {
 
     @Override
     public Map<SchemaTableName, List<ColumnMetadata>> listTableColumns(ConnectorSession session, SchemaTablePrefix prefix) {
-        requireNonNull(prefix, "prefix is null");
-        ImmutableMap.Builder<SchemaTableName, List<ColumnMetadata>> columns = ImmutableMap.builder();
-        for (SchemaTableName tableName : listTables(session, prefix)) {
-            ResurfaceTableHandle tableHandle = tables.getTable(tableName);
-            if (tableHandle != null) columns.put(tableName, tables.getColumns(tableHandle));
-        }
-        return columns.build();
+        HashMap<SchemaTableName, List<ColumnMetadata>> result = new HashMap<>();
+        result.put(new SchemaTableName(SCHEMA_DATA, TABLE_NAME), ResurfaceTables.MessageTable.COLUMNS);
+        return result;
     }
 
     @Override
     public List<SchemaTableName> listTables(ConnectorSession session, Optional<String> schemaName) {
-        System.out.println("!!!!! [ResurfaceMetadata] listTables");
         ImmutableList.Builder<SchemaTableName> builder = ImmutableList.builder();
-        builder.add(new SchemaTableName(SCHEMA_DATA, "message"));
+        builder.add(new SchemaTableName(SCHEMA_DATA, TABLE_NAME));
         views.keySet().stream()
                 .filter(table -> schemaName.map(table.getSchemaName()::contentEquals).orElse(true))
                 .forEach(builder::add);
         return builder.build();
-    }
-
-    private List<SchemaTableName> listTables(ConnectorSession session, SchemaTablePrefix prefix) {
-        if (prefix.getTable().isEmpty()) {
-            return listTables(session, prefix.getSchema());
-        } else {
-            return ImmutableList.of(prefix.toSchemaTableName());
-        }
     }
 
     @Override
@@ -126,58 +123,93 @@ public class ResurfaceMetadata implements ConnectorMetadata {
         return false;
     }
 
+    // VIEWS, BABY, VIEWS --------------------------------------------------------------------------------------------------------
+
+    private synchronized void buildViews() {
+        File dir = new File(tables.getViewsDir());
+        if (!dir.isDirectory() && !dir.mkdirs())
+            throw new TrinoException(CONFIGURATION_INVALID, "Unable to access directory: " + tables.getViewsDir());
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+        mapper.registerModule(new Jdk8Module());
+
+        DataLocation loc = new DataLocation(tables.getViewsDir());
+        List<File> files = loc.files().stream()
+                .filter(f -> !f.isHidden() && f.getName().endsWith(".json"))
+                .collect(Collectors.toList());
+
+        for (File f : files) {
+            try {
+                ConnectorViewDefinition def = mapper.readValue(f, ConnectorViewDefinition.class);
+                String filename = f.getName();
+                String name = filename.substring(0, filename.length() - 5);
+                views.put(new SchemaTableName(SCHEMA_RUNTIME, name), def);
+            } catch (IOException e) {
+                throw new TrinoException(GENERIC_INTERNAL_ERROR, "Failed to read file: " + f);
+            }
+        }
+    }
+
     @Override
     public synchronized void createView(ConnectorSession session, SchemaTableName viewName, ConnectorViewDefinition definition, boolean replace) {
-        System.out.println("!!!!! [ResurfaceMetadata] createView");
+        if (tables.getViewsDir() == null)
+            throw new TrinoException(CONFIGURATION_INVALID, "Not configured for persistent views");
+
         if (!viewName.getSchemaName().equals(SCHEMA_RUNTIME)) {
-            throw new TrinoException(READ_ONLY_VIOLATION, "Schema is ready only: " + viewName);
+            throw new TrinoException(READ_ONLY_VIOLATION, "Schema is read only: " + viewName);
         } else if (replace) {
             views.put(viewName, definition);
         } else if (views.putIfAbsent(viewName, definition) != null) {
             throw new TrinoException(ALREADY_EXISTS, "View already exists: " + viewName);
         }
+
+        ObjectMapper mapper = new ObjectMapper();
+        mapper.registerModule(new Jdk8Module());
+        try {
+            String json = mapper.writeValueAsString(definition);
+            File f = new File(new File(tables.getViewsDir()), viewName.getTableName() + ".json");
+            Files.write(Paths.get(f.toURI()), json.getBytes(StandardCharsets.UTF_8));
+        } catch (IOException e) {
+            throw new TrinoException(GENERIC_INTERNAL_ERROR, e.getMessage());
+        }
     }
 
     @Override
     public synchronized void dropView(ConnectorSession session, SchemaTableName viewName) {
-        System.out.println("!!!!! [ResurfaceMetadata] dropView");
+        if (tables.getViewsDir() == null)
+            throw new TrinoException(CONFIGURATION_INVALID, "Not configured for persistent views");
+
         if (!viewName.getSchemaName().equals(SCHEMA_RUNTIME)) {
-            throw new TrinoException(READ_ONLY_VIOLATION, "Schema is ready only: " + viewName);
+            throw new TrinoException(READ_ONLY_VIOLATION, "Schema is read only: " + viewName);
         } else if (views.remove(viewName) == null) {
             throw new ViewNotFoundException(viewName);
+        }
+
+        try {
+            File f = new File(new File(tables.getViewsDir()), viewName.getTableName() + ".json");
+            Files.deleteIfExists(Paths.get(f.toURI()));
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
     @Override
     public synchronized Map<SchemaTableName, ConnectorViewDefinition> getViews(ConnectorSession session, Optional<String> schemaName) {
-        System.out.println("!!!!! [ResurfaceMetadata] getViews");
         SchemaTablePrefix prefix = schemaName.map(SchemaTablePrefix::new).orElseGet(SchemaTablePrefix::new);
         return ImmutableMap.copyOf(Maps.filterKeys(views, prefix::matches));
     }
 
     @Override
     public synchronized Optional<ConnectorViewDefinition> getView(ConnectorSession session, SchemaTableName viewName) {
-        System.out.println("!!!!! [ResurfaceMetadata] getView");
         return Optional.ofNullable(views.get(viewName));
     }
 
     @Override
     public synchronized List<SchemaTableName> listViews(ConnectorSession session, Optional<String> schemaName) {
-        System.out.println("!!!!! [ResurfaceMetadata] listViews");
         return views.keySet().stream()
                 .filter(viewName -> schemaName.map(viewName.getSchemaName()::equals).orElse(true))
                 .collect(toImmutableList());
-    }
-
-    @Override
-    public synchronized void renameView(ConnectorSession session, SchemaTableName viewName, SchemaTableName newViewName) {
-        System.out.println("!!!!! [ResurfaceMetadata] renameView");
-        if (!viewName.getSchemaName().equals(SCHEMA_RUNTIME)) {
-            throw new TrinoException(READ_ONLY_VIOLATION, "Schema is ready only: " + viewName);
-        } else if (views.containsKey(newViewName)) {
-            throw new TrinoException(ALREADY_EXISTS, "View already exists: " + newViewName);
-        }
-        views.put(newViewName, views.remove(viewName));
     }
 
 }
