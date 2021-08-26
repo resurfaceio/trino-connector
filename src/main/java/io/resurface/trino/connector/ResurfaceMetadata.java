@@ -35,7 +35,9 @@ public class ResurfaceMetadata implements ConnectorMetadata {
 
     public static final String SCHEMA_RUNTIME = "runtime";
 
-    public static final List<String> SCHEMA_NAMES = ImmutableList.of(SCHEMA_DATA, SCHEMA_RUNTIME);
+    public static final String SCHEMA_VOLATILE = "volatile";
+
+    public static final List<String> SCHEMA_NAMES = ImmutableList.of(SCHEMA_DATA, SCHEMA_RUNTIME, SCHEMA_VOLATILE);
 
     @Inject
     public ResurfaceMetadata(ResurfaceTables tables) {
@@ -131,8 +133,9 @@ public class ResurfaceMetadata implements ConnectorMetadata {
             try {
                 ConnectorViewDefinition def = mapper.readValue(f, ConnectorViewDefinition.class);
                 String filename = f.getName();
-                String name = filename.substring(0, filename.length() - 5);
-                views.put(new SchemaTableName(SCHEMA_RUNTIME, name), def);
+                String[] name_pieces = filename.split("\\.");
+                if ((name_pieces.length == 3) && (name_pieces[0].equals(SCHEMA_DATA) || name_pieces[0].equals(SCHEMA_RUNTIME))
+                        && name_pieces[2].equals("json")) views.put(new SchemaTableName(name_pieces[0], name_pieces[1]), def);
             } catch (IOException e) {
                 throw new TrinoException(GENERIC_INTERNAL_ERROR, "Failed to read file: " + f);
             }
@@ -144,7 +147,8 @@ public class ResurfaceMetadata implements ConnectorMetadata {
         if (tables.getViewsDir() == null)
             throw new TrinoException(CONFIGURATION_INVALID, "Not configured for persistent views");
 
-        if (!viewName.getSchemaName().equals(SCHEMA_RUNTIME)) {
+        String schema = viewName.getSchemaName();
+        if (!schema.equals(SCHEMA_DATA) && !schema.equals(SCHEMA_RUNTIME) && !schema.equals(SCHEMA_VOLATILE)) {
             throw new TrinoException(READ_ONLY_VIOLATION, "Schema is read only: " + viewName);
         } else if (replace) {
             views.put(viewName, definition);
@@ -152,11 +156,13 @@ public class ResurfaceMetadata implements ConnectorMetadata {
             throw new TrinoException(ALREADY_EXISTS, "View already exists: " + viewName);
         }
 
+        if (schema.equals(SCHEMA_VOLATILE)) return;
+
         ObjectMapper mapper = new ObjectMapper();
         mapper.registerModule(new Jdk8Module());
         try {
             String json = mapper.writeValueAsString(definition);
-            File f = new File(new File(tables.getViewsDir()), viewName.getTableName() + ".json");
+            File f = new File(new File(tables.getViewsDir()), schema + "." + viewName.getTableName() + ".json");
             Files.write(Paths.get(f.toURI()), json.getBytes(StandardCharsets.UTF_8));
         } catch (IOException e) {
             throw new TrinoException(GENERIC_INTERNAL_ERROR, e.getMessage());
@@ -168,14 +174,17 @@ public class ResurfaceMetadata implements ConnectorMetadata {
         if (tables.getViewsDir() == null)
             throw new TrinoException(CONFIGURATION_INVALID, "Not configured for persistent views");
 
-        if (!viewName.getSchemaName().equals(SCHEMA_RUNTIME)) {
+        String schema = viewName.getSchemaName();
+        if (!schema.equals(SCHEMA_DATA) && !schema.equals(SCHEMA_RUNTIME) && !schema.equals(SCHEMA_VOLATILE)) {
             throw new TrinoException(READ_ONLY_VIOLATION, "Schema is read only: " + viewName);
         } else if (views.remove(viewName) == null) {
             throw new ViewNotFoundException(viewName);
         }
 
+        if (schema.equals(SCHEMA_VOLATILE)) return;
+
         try {
-            File f = new File(new File(tables.getViewsDir()), viewName.getTableName() + ".json");
+            File f = new File(new File(tables.getViewsDir()), schema + "." + viewName.getTableName() + ".json");
             Files.deleteIfExists(Paths.get(f.toURI()));
         } catch (IOException e) {
             e.printStackTrace();
