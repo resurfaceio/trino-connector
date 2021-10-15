@@ -84,7 +84,10 @@ public class ResurfaceTables {
                 new ColumnMetadata("response_json_type", createUnboundedVarcharType()),            // 20
                 new ColumnMetadata("response_time_millis", BIGINT),                                // 21
                 new ColumnMetadata("size_request_bytes", INTEGER),                                 // 22
-                new ColumnMetadata("size_response_bytes", INTEGER)                                 // 23
+                new ColumnMetadata("size_response_bytes", INTEGER),                                // 23
+                new ColumnMetadata("custom_fields", createUnboundedVarcharType()),                 // 24 (v3)
+                new ColumnMetadata("request_address", createUnboundedVarcharType()),               // 25 (v3)
+                new ColumnMetadata("session_fields", createUnboundedVarcharType())                 // 26 (v3)
         );
 
         public static final String TABLE_NAME = "message";

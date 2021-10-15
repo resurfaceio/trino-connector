@@ -62,6 +62,9 @@ public class TestResurfaceRecordSet {
         assertEquals(cursor.getLong(21), 1234);
         assertEquals(cursor.getLong(22), 23);
         assertEquals(cursor.getLong(23), 45);
+        assertEquals(cursor.getSlice(24).toStringUtf8(), "custom_fields");
+        assertEquals(cursor.getSlice(25).toStringUtf8(), "request_address");
+        assertEquals(cursor.getSlice(26).toStringUtf8(), "session_fields");
 
         assertFalse(cursor.advanceNextPosition());
     }
