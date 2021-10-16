@@ -65,8 +65,8 @@ public class ResurfaceTables {
                 new ColumnMetadata("agent_category", createUnboundedVarcharType()),                // 1
                 new ColumnMetadata("agent_device", createUnboundedVarcharType()),                  // 2
                 new ColumnMetadata("agent_name", createUnboundedVarcharType()),                    // 3
-                new ColumnMetadata("graphql_operation", createUnboundedVarcharType()),             // 4
-                new ColumnMetadata("graphql_operation_name", createUnboundedVarcharType()),        // 5
+                new ColumnMetadata("graphql_operations", createUnboundedVarcharType()),            // 4 (v3)
+                new ColumnMetadata("graphql_operations_count", INTEGER),                           // 5 (v3)
                 new ColumnMetadata("host", createUnboundedVarcharType()),                          // 6
                 new ColumnMetadata("interval_millis", BIGINT),                                     // 7
                 new ColumnMetadata("request_body", createUnboundedVarcharType()),                  // 8

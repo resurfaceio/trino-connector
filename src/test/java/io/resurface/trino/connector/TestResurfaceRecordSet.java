@@ -42,8 +42,8 @@ public class TestResurfaceRecordSet {
         assertEquals(cursor.getSlice(1).toStringUtf8(), "agent_category");
         assertEquals(cursor.getSlice(2).toStringUtf8(), "agent_device");
         assertEquals(cursor.getSlice(3).toStringUtf8(), "agent_name");
-        assertEquals(cursor.getSlice(4).toStringUtf8(), "graphql_operation");
-        assertEquals(cursor.getSlice(5).toStringUtf8(), "graphql_operation_name");
+        assertEquals(cursor.getSlice(4).toStringUtf8(), "graphql_operations");
+        assertEquals(cursor.getLong(5), 27);
         assertEquals(cursor.getSlice(6).toStringUtf8(), "host");
         assertEquals(cursor.getLong(7), 123456);
         assertEquals(cursor.getSlice(8).toStringUtf8(), "request_body");

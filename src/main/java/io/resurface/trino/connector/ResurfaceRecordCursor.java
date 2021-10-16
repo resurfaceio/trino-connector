@@ -71,6 +71,8 @@ public class ResurfaceRecordCursor implements RecordCursor {
     @Override
     public long getLong(int field) {
         switch (column_ordinal_positions[field]) {
+            case 5: // v3
+                return message.graphql_operations_count.value();
             case 7:
                 return message.interval_millis.value();
             case 21:
@@ -105,10 +107,8 @@ public class ResurfaceRecordCursor implements RecordCursor {
                 return getSliceFromField(message.agent_device);
             case 3:
                 return getSliceFromField(message.agent_name);
-            case 4:
-                return getSliceFromField(message.graphql_operation);
-            case 5:
-                return getSliceFromField(message.graphql_operation_name);
+            case 4: // v3
+                return getSliceFromField(message.graphql_operations);
             case 6:
                 return getSliceFromField(message.host);
             case 8:
@@ -169,10 +169,10 @@ public class ResurfaceRecordCursor implements RecordCursor {
                 return message.agent_device.length() == 0;
             case 3:
                 return message.agent_name.length() == 0;
-            case 4:
-                return message.graphql_operation.length() == 0;
-            case 5:
-                return message.graphql_operation_name.length() == 0;
+            case 4: // v3
+                return message.graphql_operations.length() == 0;
+            case 5: // v3
+                return message.graphql_operations_count.value() == 0;
             case 6:
                 return message.host.length() == 0;
             case 7:
