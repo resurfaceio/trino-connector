@@ -172,7 +172,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
             case 4: // v3
                 return message.graphql_operations.length() == 0;
             case 5: // v3
-                return message.graphql_operations_count.value() == 0;
+                return false;  // graphql_operations_count
             case 6:
                 return message.host.length() == 0;
             case 7:
