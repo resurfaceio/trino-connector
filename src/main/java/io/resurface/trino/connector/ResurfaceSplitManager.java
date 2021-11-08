@@ -2,33 +2,37 @@
 
 package io.resurface.trino.connector;
 
+import io.trino.spi.Node;
 import io.trino.spi.NodeManager;
 import io.trino.spi.connector.*;
 
 import javax.inject.Inject;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.Objects.requireNonNull;
 
 public class ResurfaceSplitManager implements ConnectorSplitManager {
 
     @Inject
-    public ResurfaceSplitManager(NodeManager nodeManager) {
+    public ResurfaceSplitManager(ResurfaceConfig config, NodeManager nodeManager) {
+        this.config = config;
         this.nodeManager = requireNonNull(nodeManager, "nodeManager is null");
     }
 
+    private final ResurfaceConfig config;
     private final NodeManager nodeManager;
 
     @Override
     public ConnectorSplitSource getSplits(ConnectorTransactionHandle transactionHandle, ConnectorSession session,
                                           ConnectorTableHandle table, SplitSchedulingStrategy splitSchedulingStrategy,
                                           DynamicFilter dynamicFilter) {
-
-        List<ConnectorSplit> splits = nodeManager.getAllNodes().stream()
-                .map(node -> new ResurfaceSplit(node.getHostAndPort()))
-                .collect(Collectors.toList());
-
+        List<ConnectorSplit> splits = new ArrayList<>();
+        for (Node node : nodeManager.getAllNodes()) {
+            for (int i = 1; i <= config.getMessagesSlabs(); i++) {
+                splits.add(new ResurfaceSplit(node.getHostAndPort(), i));
+            }
+        }
         return new FixedSplitSource(splits);
     }
 

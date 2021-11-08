@@ -16,11 +16,13 @@ import static java.util.Objects.requireNonNull;
 public class ResurfaceSplit implements ConnectorSplit {
 
     @JsonCreator
-    public ResurfaceSplit(@JsonProperty("address") HostAddress address) {
+    public ResurfaceSplit(@JsonProperty("address") HostAddress address, @JsonProperty("slab") int slab) {
         this.address = requireNonNull(address, "address is null");
+        this.slab = slab;
     }
 
     private final HostAddress address;
+    private final int slab;
 
     @JsonProperty
     public HostAddress getAddress() {
@@ -35,6 +37,11 @@ public class ResurfaceSplit implements ConnectorSplit {
     @Override
     public Object getInfo() {
         return this;
+    }
+
+    @JsonProperty
+    public int getSlab() {
+        return slab;
     }
 
     @Override

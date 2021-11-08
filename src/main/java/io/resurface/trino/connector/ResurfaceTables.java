@@ -22,8 +22,10 @@ public class ResurfaceTables {
     @Inject
     public ResurfaceTables(ResurfaceConfig config) {
         location = new DataLocation(config.getMessagesDir());
-        SchemaTableName table = MessageTable.getSchemaTableName();
+        slabs = config.getMessagesSlabs();
+        viewsDir = config.getViewsDir();
 
+        SchemaTableName table = MessageTable.getSchemaTableName();
         ImmutableMap.Builder<SchemaTableName, ResurfaceTableHandle> tablesBuilder = ImmutableMap.builder();
         tablesBuilder.put(table, new ResurfaceTableHandle(table));
         tables = tablesBuilder.build();
@@ -31,11 +33,10 @@ public class ResurfaceTables {
         ImmutableMap.Builder<SchemaTableName, List<ColumnMetadata>> tableColumnsBuilder = ImmutableMap.builder();
         tableColumnsBuilder.put(table, MessageTable.getColumns());
         tableColumns = tableColumnsBuilder.build();
-
-        viewsDir = config.getViewsDir();
     }
 
     private final DataLocation location;
+    private final int slabs;
     private final Map<SchemaTableName, ResurfaceTableHandle> tables;
     private final Map<SchemaTableName, List<ColumnMetadata>> tableColumns;
     private final String viewsDir;
@@ -44,10 +45,15 @@ public class ResurfaceTables {
         return tableColumns.get(tableHandle.getSchemaTableName());
     }
 
-    public List<File> getFiles(SchemaTableName table) {
+    public List<File> getFiles(SchemaTableName table, int slab) {
         return location.files().stream()
                 .filter(f -> !f.isHidden())
+                .filter(f -> f.getName().startsWith(table.getTableName() + "." + slab))
                 .collect(Collectors.toList());
+    }
+
+    public int getSlabs() {
+        return slabs;
     }
 
     public ResurfaceTableHandle getTable(SchemaTableName tableName) {

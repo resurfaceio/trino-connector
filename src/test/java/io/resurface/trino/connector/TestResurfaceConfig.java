@@ -18,6 +18,7 @@ public class TestResurfaceConfig {
     public void testDefaults() {
         assertRecordedDefaults(recordDefaults(ResurfaceConfig.class)
                 .setMessagesDir(null)
+                .setMessagesSlabs(0)
                 .setViewsDir(null));
     }
 
@@ -28,11 +29,13 @@ public class TestResurfaceConfig {
 
         Map<String, String> properties = new ImmutableMap.Builder<String, String>()
                 .put("resurface.messages.dir", tmpfile.toString())
+                .put("resurface.messages.slabs", String.valueOf(42))
                 .put("resurface.views.dir", tmpfile2.toString())
                 .build();
 
         ResurfaceConfig expected = new ResurfaceConfig()
                 .setMessagesDir(tmpfile.toString())
+                .setMessagesSlabs(42)
                 .setViewsDir(tmpfile2.toString());
         assertFullMapping(properties, expected);
     }

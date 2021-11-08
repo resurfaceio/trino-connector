@@ -7,10 +7,15 @@ import io.airlift.configuration.Config;
 public class ResurfaceConfig {
 
     private String messagesDir = null;
+    private int messagesSlabs;
     private String viewsDir = null;
 
     public String getMessagesDir() {
         return messagesDir;
+    }
+
+    public int getMessagesSlabs() {
+        return messagesSlabs;
     }
 
     public String getViewsDir() {
@@ -20,6 +25,12 @@ public class ResurfaceConfig {
     @Config("resurface.messages.dir")
     public ResurfaceConfig setMessagesDir(String dir) {
         this.messagesDir = dir;
+        return this;
+    }
+
+    @Config("resurface.messages.slabs")
+    public ResurfaceConfig setMessagesSlabs(int messagesSlabs) {
+        this.messagesSlabs = messagesSlabs;
         return this;
     }
 

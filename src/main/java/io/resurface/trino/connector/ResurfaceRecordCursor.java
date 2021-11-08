@@ -16,7 +16,7 @@ import java.util.List;
 
 public class ResurfaceRecordCursor implements RecordCursor {
 
-    public ResurfaceRecordCursor(ResurfaceTables tables, List<ResurfaceColumnHandle> columns, SchemaTableName tableName) {
+    public ResurfaceRecordCursor(ResurfaceTables tables, List<ResurfaceColumnHandle> columns, SchemaTableName tableName, int slab) {
         try {
             this.column_names = new String[columns.size()];
             this.column_ordinal_positions = new int[columns.size()];
@@ -26,7 +26,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
                 this.column_ordinal_positions[i] = columns.get(i).getOrdinalPosition();
                 this.column_types[i] = columns.get(i).getColumnType();
             }
-            this.iterator = new FilesIterator(tables.getFiles(tableName).iterator());
+            this.iterator = new FilesIterator(tables.getFiles(tableName, slab).iterator());
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }

@@ -6,7 +6,6 @@ import com.google.common.collect.ImmutableList;
 import io.trino.spi.connector.RecordCursor;
 import io.trino.spi.connector.RecordSet;
 import io.trino.spi.connector.SchemaTableName;
-import io.trino.spi.predicate.TupleDomain;
 import io.trino.spi.type.Type;
 
 import java.util.List;
@@ -22,18 +21,20 @@ public class ResurfaceRecordSet implements RecordSet {
         ImmutableList.Builder<Type> types = ImmutableList.builder();
         for (ResurfaceColumnHandle column : columns) types.add(column.getColumnType());
         this.columnTypes = types.build();
+        this.slab = split.getSlab();
         this.tableName = table.getSchemaTableName();
         this.tables = requireNonNull(tables, "tables is null");
     }
 
     private final List<ResurfaceColumnHandle> columns;
     private final List<Type> columnTypes;
+    private final int slab;
     private final ResurfaceTables tables;
     private final SchemaTableName tableName;
 
     @Override
     public RecordCursor cursor() {
-        return new ResurfaceRecordCursor(tables, columns, tableName);
+        return new ResurfaceRecordCursor(tables, columns, tableName, slab);
     }
 
     @Override

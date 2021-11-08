@@ -29,7 +29,7 @@ public class TestResurfaceRecordSet {
                 .values().stream().map(column -> (ResurfaceColumnHandle) column)
                 .collect(Collectors.toList());
 
-        ResurfaceSplit split = new ResurfaceSplit(HostAddress.fromParts("localhost", 1234));
+        ResurfaceSplit split = new ResurfaceSplit(HostAddress.fromParts("localhost", 1234), 1);
         RecordSet recordSet = new ResurfaceRecordSet(tables, split, tableHandle, columnHandles);
         RecordCursor cursor = recordSet.cursor();
 
