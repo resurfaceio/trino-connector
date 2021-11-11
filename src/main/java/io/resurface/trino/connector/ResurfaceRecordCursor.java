@@ -242,7 +242,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
                 try {
                     message.read(stream);
                     return;
-                } catch (EOFException eof) {
+                } catch (EOFException | StreamCorruptedException e) {
                     stream.close();
                     stream = createNextStream();
                 }
