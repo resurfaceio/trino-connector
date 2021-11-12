@@ -81,6 +81,8 @@ public class ResurfaceRecordCursor implements RecordCursor {
                 return message.size_request_bytes.value();
             case 23:
                 return message.size_response_bytes.value();
+            case 28: // v3
+                return message.cookies_count.value();
             default:
                 throw new IllegalArgumentException("Cannot get as long: " + column_names[field]);
         }
@@ -143,6 +145,8 @@ public class ResurfaceRecordCursor implements RecordCursor {
                 return getSliceFromField(message.request_address);
             case 26: // v3
                 return getSliceFromField(message.session_fields);
+            case 27: // v3
+                return getSliceFromField(message.cookies);
             default:
                 throw new IllegalArgumentException("Cannot get as string: " + column_names[field]);
         }
@@ -215,6 +219,10 @@ public class ResurfaceRecordCursor implements RecordCursor {
                 return message.request_address.length() == 0;
             case 26: // v3
                 return message.session_fields.length() == 0;
+            case 27: // v3
+                return message.cookies.length() == 0;
+            case 28: // v3
+                return false;  // cookies_count
             default:
                 throw new IllegalArgumentException("Invalid field index: " + field);
         }
