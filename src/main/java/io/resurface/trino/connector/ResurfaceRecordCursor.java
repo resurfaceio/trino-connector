@@ -154,7 +154,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
 
     private Slice getSliceFromField(BinaryHttpMessageString field) {
         int len = field.length();
-        return len == 0 ? Slices.EMPTY_SLICE : Slices.wrappedBuffer(field.buffer(), 0, len);
+        return len == 0 ? Slices.EMPTY_SLICE : Slices.wrappedBuffer(field.buffer(), field.offset(), len);
     }
 
     @Override
@@ -258,20 +258,19 @@ public class ResurfaceRecordCursor implements RecordCursor {
             message = null;
         }
 
-        private ObjectInputStream createNextStream() throws IOException {
+        private BufferedInputStream createNextStream() {
             if (!files.hasNext()) return null;
             File file = files.next();
             try {
                 FileInputStream fis = new FileInputStream(file);
-                BufferedInputStream bis = new BufferedInputStream(fis, 1000000);
-                return new ObjectInputStream(bis);
-            } catch (EOFException | FileNotFoundException e) {
+                return new BufferedInputStream(fis, 1000000);
+            } catch (FileNotFoundException e) {
                 return createNextStream();
             }
         }
 
         private final Iterator<File> files;
-        private ObjectInputStream stream;
+        private BufferedInputStream stream;
 
     }
 

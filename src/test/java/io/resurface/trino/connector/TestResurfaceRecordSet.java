@@ -68,6 +68,9 @@ public class TestResurfaceRecordSet {
         assertEquals(cursor.getSlice(27).toStringUtf8(), "cookies");
         assertEquals(cursor.getLong(28), 56);
 
+        assertTrue(cursor.advanceNextPosition());
+        assertEquals(cursor.getSlice(0).toStringUtf8(), "id2");
+
         assertFalse(cursor.advanceNextPosition());
     }
 
