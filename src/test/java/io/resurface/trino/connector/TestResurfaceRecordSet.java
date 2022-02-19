@@ -12,9 +12,7 @@ import java.util.stream.Collectors;
 
 import static io.resurface.trino.connector.ResurfaceTables.MessageTable.getSchemaTableName;
 import static io.trino.testing.TestingConnectorSession.SESSION;
-import static org.junit.Assert.assertFalse;
-import static org.testng.Assert.assertEquals;
-import static org.testng.Assert.assertTrue;
+import static org.testng.Assert.*;
 
 public class TestResurfaceRecordSet {
 

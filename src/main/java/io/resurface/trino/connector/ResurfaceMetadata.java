@@ -10,7 +10,6 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import io.trino.spi.TrinoException;
 import io.trino.spi.connector.*;
-import io.trino.spi.predicate.TupleDomain;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -94,13 +93,6 @@ public class ResurfaceMetadata implements ConnectorMetadata {
     }
 
     @Override
-    public Map<SchemaTableName, List<ColumnMetadata>> listTableColumns(ConnectorSession session, SchemaTablePrefix prefix) {
-        HashMap<SchemaTableName, List<ColumnMetadata>> result = new HashMap<>();
-        result.put(new SchemaTableName(SCHEMA_DATA, TABLE_NAME), ResurfaceTables.MessageTable.COLUMNS);
-        return result;
-    }
-
-    @Override
     public List<SchemaTableName> listTables(ConnectorSession session, Optional<String> schemaName) {
         ImmutableList.Builder<SchemaTableName> builder = ImmutableList.builder();
         builder.add(new SchemaTableName(SCHEMA_DATA, TABLE_NAME));
@@ -108,11 +100,6 @@ public class ResurfaceMetadata implements ConnectorMetadata {
                 .filter(table -> schemaName.map(table.getSchemaName()::contentEquals).orElse(true))
                 .forEach(builder::add);
         return builder.build();
-    }
-
-    @Override
-    public boolean usesLegacyTableLayouts() {
-        return false;
     }
 
     // VIEWS, BABY, VIEWS --------------------------------------------------------------------------------------------------------
