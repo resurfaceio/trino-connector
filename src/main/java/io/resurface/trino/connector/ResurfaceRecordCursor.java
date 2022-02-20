@@ -9,6 +9,7 @@ import io.resurface.binfiles.BinaryHttpMessageString;
 import io.trino.spi.connector.RecordCursor;
 import io.trino.spi.connector.SchemaTableName;
 import io.trino.spi.type.Type;
+import it.unimi.dsi.fastutil.io.FastBufferedInputStream;
 
 import java.io.*;
 import java.util.Iterator;
@@ -258,19 +259,19 @@ public class ResurfaceRecordCursor implements RecordCursor {
             message = null;
         }
 
-        private BufferedInputStream createNextStream() {
+        private FastBufferedInputStream createNextStream() {
             if (!files.hasNext()) return null;
             File file = files.next();
             try {
                 FileInputStream fis = new FileInputStream(file);
-                return new BufferedInputStream(fis, 1000000);
+                return new FastBufferedInputStream(fis, 1000000);
             } catch (FileNotFoundException e) {
                 return createNextStream();
             }
         }
 
         private final Iterator<File> files;
-        private BufferedInputStream stream;
+        private FastBufferedInputStream stream;
 
     }
 
