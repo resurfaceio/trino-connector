@@ -15,6 +15,8 @@ import java.io.*;
 import java.util.Iterator;
 import java.util.List;
 
+import static io.airlift.slice.Slices.utf8Slice;
+
 public class ResurfaceRecordCursor implements RecordCursor {
 
     public ResurfaceRecordCursor(ResurfaceTables tables, List<ResurfaceColumnHandle> columns, SchemaTableName tableName, int slab) {
@@ -84,6 +86,8 @@ public class ResurfaceRecordCursor implements RecordCursor {
                 return message.size_response_bytes.value();
             case 28: // v3
                 return message.cookies_count.value();
+            case 30: // v3.1
+                return message.size_request_bytes.value() + message.size_response_bytes.value();
             default:
                 throw new IllegalArgumentException("Cannot get as long: " + column_names[field]);
         }
@@ -148,10 +152,39 @@ public class ResurfaceRecordCursor implements RecordCursor {
                 return getSliceFromField(message.session_fields);
             case 27: // v3
                 return getSliceFromField(message.cookies);
+            case 29: // v3.1
+                Slice type = getSliceFromField(message.response_json_type);
+                if (MALFORMED.equals(type)) return MALFORMED;
+                Slice body = getSliceFromField(message.response_body);
+                if (body.indexOf(FIND_EXCEPTION) >= 0) return PAYLOAD_ERROR;
+                if ((ARRAY.equals(type) || OBJECT.equals(type)) && (body.indexOf(FIND_ERROR)) >= 0) return PAYLOAD_ERROR;
+                try {
+                    int code = Integer.parseInt(getSliceFromField(message.response_code).toStringUtf8());
+                    if (code == 401) return UNAUTHORIZED;
+                    else if (code == 403) return FORBIDDEN;
+                    else if (code == 429) return THROTTLED;
+                    else if (code == 400 || code == 402 || code > 403) return HTTP_ERROR;
+                } catch (NumberFormatException nfe) {
+                    // do nothing
+                }
+                return COMPLETED;
             default:
                 throw new IllegalArgumentException("Cannot get as string: " + column_names[field]);
         }
     }
+
+    private static final Slice FIND_ERROR = utf8Slice("\"errors\":");
+    private static final Slice FIND_EXCEPTION = utf8Slice("Exception:");
+
+    private static final Slice ARRAY = utf8Slice("ARRAY");
+    private static final Slice COMPLETED = utf8Slice("COMPLETED");
+    private static final Slice FORBIDDEN = utf8Slice("FORBIDDEN");
+    private static final Slice HTTP_ERROR = utf8Slice("HTTP_ERROR");
+    private static final Slice MALFORMED = utf8Slice("MALFORMED");
+    private static final Slice OBJECT = utf8Slice("OBJECT");
+    private static final Slice PAYLOAD_ERROR = utf8Slice("PAYLOAD_ERROR");
+    private static final Slice THROTTLED = utf8Slice("THROTTLED");
+    private static final Slice UNAUTHORIZED = utf8Slice("UNAUTHORIZED");
 
     private Slice getSliceFromField(BinaryHttpMessageString field) {
         int len = field.length();
@@ -224,6 +257,10 @@ public class ResurfaceRecordCursor implements RecordCursor {
                 return message.cookies.length() == 0;
             case 28: // v3
                 return false;  // cookies_count
+            case 29: // v3.1
+                return false;  // response_status
+            case 30: // v3.1
+                return false;  // size_total_bytes
             default:
                 throw new IllegalArgumentException("Invalid field index: " + field);
         }
