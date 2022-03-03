@@ -88,6 +88,38 @@ public class ResurfaceRecordCursor implements RecordCursor {
                 return message.cookies_count.value();
             case 30: // v3.1
                 return message.size_request_bytes.value() + message.size_response_bytes.value();
+            case 31: // v3.1
+                return message.bitmap_categories.value();
+            case 32: // v3.1
+                return message.bitmap_request_info.value();
+            case 33: // v3.1
+                return message.bitmap_request_json.value();
+            case 34: // v3.1
+                return message.bitmap_request_graphql.value();
+            case 35: // v3.1
+                return message.bitmap_request_pii.value();
+            case 36: // v3.1
+                return message.bitmap_request_quality.value();
+            case 37: // v3.1
+                return message.bitmap_response_info.value();
+            case 38: // v3.1
+                return message.bitmap_response_json.value();
+            case 39: // v3.1
+                return message.bitmap_response_pii.value();
+            case 40: // v3.1
+                return message.bitmap_response_quality.value();
+            case 41: // v3.1
+                return message.bitmap_attack_request.value();
+            case 42: // v3.1
+                return message.bitmap_attack_application.value();
+            case 43: // v3.1
+                return message.bitmap_attack_injection.value();
+            case 44: // v3.1
+                return message.bitmap_unused1.value();
+            case 45: // v3.1
+                return message.bitmap_unused2.value();
+            case 46: // v3.1
+                return message.bitmap_unused3.value();
             default:
                 throw new IllegalArgumentException("Cannot get as long: " + column_names[field]);
         }
@@ -261,6 +293,38 @@ public class ResurfaceRecordCursor implements RecordCursor {
                 return false;  // response_status
             case 30: // v3.1
                 return false;  // size_total_bytes
+            case 31: // v3.1
+                return false;  // bitmap_categories
+            case 32: // v3.1
+                return false;  // bitmap_request_info
+            case 33: // v3.1
+                return false;  // bitmap_request_json
+            case 34: // v3.1
+                return false;  // bitmap_request_graphql
+            case 35: // v3.1
+                return false;  // bitmap_request_pii
+            case 36: // v3.1
+                return false;  // bitmap_request_quality
+            case 37: // v3.1
+                return false;  // bitmap_response_info
+            case 38: // v3.1
+                return false;  // bitmap_response_json
+            case 39: // v3.1
+                return false;  // bitmap_response_pii
+            case 40: // v3.1
+                return false;  // bitmap_response_quality
+            case 41: // v3.1
+                return false;  // bitmap_attack_request
+            case 42: // v3.1
+                return false;  // bitmap_attack_application
+            case 43: // v3.1
+                return false;  // bitmap_attack_injection
+            case 44: // v3.1
+                return false;  // bitmap_unused1
+            case 45: // v3.1
+                return false;  // bitmap_unused2
+            case 46: // v3.1
+                return false;  // bitmap_unused3
             default:
                 throw new IllegalArgumentException("Invalid field index: " + field);
         }
