@@ -2,6 +2,7 @@
 
 package io.resurface.trino.connector;
 
+import io.airlift.log.Logger;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
 import io.resurface.binfiles.BinaryHttpMessage;
@@ -39,6 +40,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
     private final int[] column_ordinal_positions;
     private final Type[] column_types;
     private final FilesIterator iterator;
+    private final Logger log = Logger.get(ResurfaceRecordCursor.class);
     private BinaryHttpMessage message = new BinaryHttpMessage();
 
     @Override
@@ -220,7 +222,61 @@ public class ResurfaceRecordCursor implements RecordCursor {
 
     private Slice getSliceFromField(BinaryHttpMessageString field) {
         int len = field.length();
-        return len == 0 ? Slices.EMPTY_SLICE : Slices.wrappedBuffer(field.buffer(), field.offset(), len);
+        try {
+            return len == 0 ? Slices.EMPTY_SLICE : Slices.wrappedBuffer(field.buffer(), field.offset(), len);
+        } catch (Exception e) {
+            log.error("getSliceFromField failed:"
+                    + "\nfield.length=" + field.length()
+                    + "\nfield.offset=" + field.offset()
+                    + "\nmessage.id=" + message.id.value()
+                    + "\nmessage.id.length=" + message.id.length()
+                    + "\nmessage.agent_category.length=" + message.agent_category.length()
+                    + "\nmessage.agent_device.length=" + message.agent_device.length()
+                    + "\nmessage.agent_name.length=" + message.agent_name.length()
+                    + "\nmessage.graphql_operations.length=" + message.graphql_operations.length()
+                    + "\nmessage.host.length=" + message.host.length()
+                    + "\nmessage.request_body.length=" + message.request_body.length()
+                    + "\nmessage.request_content_type.length=" + message.request_content_type.length()
+                    + "\nmessage.request_headers.length=" + message.request_headers.length()
+                    + "\nmessage.request_json_type.length=" + message.request_json_type.length()
+                    + "\nmessage.request_method.length=" + message.request_method.length()
+                    + "\nmessage.request_params.length=" + message.request_params.length()
+                    + "\nmessage.request_url.length=" + message.request_url.length()
+                    + "\nmessage.request_user_agent.length=" + message.request_user_agent.length()
+                    + "\nmessage.response_body.length=" + message.response_body.length()
+                    + "\nmessage.response_code.length=" + message.response_code.length()
+                    + "\nmessage.response_content_type.length=" + message.response_content_type.length()
+                    + "\nmessage.response_headers.length=" + message.response_headers.length()
+                    + "\nmessage.response_json_type.length=" + message.response_json_type.length()
+                    + "\nmessage.custom_fields.length=" + message.custom_fields.length()
+                    + "\nmessage.request_address.length=" + message.request_address.length()
+                    + "\nmessage.session_fields.length=" + message.session_fields.length()
+                    + "\nmessage.cookies.length=" + message.cookies.length()
+                    + "\nmessage.id.offset=" + message.id.offset()
+                    + "\nmessage.agent_category.offset=" + message.agent_category.offset()
+                    + "\nmessage.agent_device.offset=" + message.agent_device.offset()
+                    + "\nmessage.agent_name.offset=" + message.agent_name.offset()
+                    + "\nmessage.graphql_operations.offset=" + message.graphql_operations.offset()
+                    + "\nmessage.host.offset=" + message.host.offset()
+                    + "\nmessage.request_body.offset=" + message.request_body.offset()
+                    + "\nmessage.request_content_type.offset=" + message.request_content_type.offset()
+                    + "\nmessage.request_headers.offset=" + message.request_headers.offset()
+                    + "\nmessage.request_json_type.offset=" + message.request_json_type.offset()
+                    + "\nmessage.request_method.offset=" + message.request_method.offset()
+                    + "\nmessage.request_params.offset=" + message.request_params.offset()
+                    + "\nmessage.request_url.offset=" + message.request_url.offset()
+                    + "\nmessage.request_user_agent.offset=" + message.request_user_agent.offset()
+                    + "\nmessage.response_body.offset=" + message.response_body.offset()
+                    + "\nmessage.response_code.offset=" + message.response_code.offset()
+                    + "\nmessage.response_content_type.offset=" + message.response_content_type.offset()
+                    + "\nmessage.response_headers.offset=" + message.response_headers.offset()
+                    + "\nmessage.response_json_type.offset=" + message.response_json_type.offset()
+                    + "\nmessage.custom_fields.offset=" + message.custom_fields.offset()
+                    + "\nmessage.request_address.offset=" + message.request_address.offset()
+                    + "\nmessage.session_fields.offset=" + message.session_fields.offset()
+                    + "\nmessage.cookies.offset=" + message.cookies.offset());
+            throw e;
+        }
     }
 
     @Override
