@@ -91,7 +91,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
             case 30: // v3.1
                 return message.size_request_bytes.value() + message.size_response_bytes.value();
             case 31: // v3.1
-                return message.bitmap_categories.value();
+                return message.bitmap_versioning.value();
             case 32: // v3.1
                 return message.bitmap_request_info.value();
             case 33: // v3.1
@@ -101,7 +101,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
             case 35: // v3.1
                 return message.bitmap_request_pii.value();
             case 36: // v3.1
-                return message.bitmap_request_quality.value();
+                return message.bitmap_request_threat.value();
             case 37: // v3.1
                 return message.bitmap_response_info.value();
             case 38: // v3.1
@@ -109,7 +109,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
             case 39: // v3.1
                 return message.bitmap_response_pii.value();
             case 40: // v3.1
-                return message.bitmap_response_quality.value();
+                return message.bitmap_response_threat.value();
             case 41: // v3.1
                 return message.bitmap_attack_request.value();
             case 42: // v3.1
@@ -117,11 +117,15 @@ public class ResurfaceRecordCursor implements RecordCursor {
             case 43: // v3.1
                 return message.bitmap_attack_injection.value();
             case 44: // v3.1
-                return message.bitmap_unused1.value();
+                return message.bitmap_response_leak.value();
             case 45: // v3.1
                 return message.bitmap_unused2.value();
             case 46: // v3.1
                 return message.bitmap_unused3.value();
+            case 47: // v3.1
+                return message.bitmap_unused4.value();
+            case 48: // v3.1
+                return message.bitmap_unused5.value();
             default:
                 throw new IllegalArgumentException("Cannot get as long: " + column_names[field]);
         }
@@ -350,7 +354,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
             case 30: // v3.1
                 return false;  // size_total_bytes
             case 31: // v3.1
-                return false;  // bitmap_categories
+                return false;  // bitmap_versioning
             case 32: // v3.1
                 return false;  // bitmap_request_info
             case 33: // v3.1
@@ -360,7 +364,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
             case 35: // v3.1
                 return false;  // bitmap_request_pii
             case 36: // v3.1
-                return false;  // bitmap_request_quality
+                return false;  // bitmap_request_threat
             case 37: // v3.1
                 return false;  // bitmap_response_info
             case 38: // v3.1
@@ -368,7 +372,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
             case 39: // v3.1
                 return false;  // bitmap_response_pii
             case 40: // v3.1
-                return false;  // bitmap_response_quality
+                return false;  // bitmap_response_threat
             case 41: // v3.1
                 return false;  // bitmap_attack_request
             case 42: // v3.1
@@ -376,11 +380,15 @@ public class ResurfaceRecordCursor implements RecordCursor {
             case 43: // v3.1
                 return false;  // bitmap_attack_injection
             case 44: // v3.1
-                return false;  // bitmap_unused1
+                return false;  // bitmap_response_leak
             case 45: // v3.1
                 return false;  // bitmap_unused2
             case 46: // v3.1
                 return false;  // bitmap_unused3
+            case 47: // v3.1
+                return false;  // bitmap_unused4
+            case 48: // v3.1
+                return false;  // bitmap_unused5
             default:
                 throw new IllegalArgumentException("Invalid field index: " + field);
         }
