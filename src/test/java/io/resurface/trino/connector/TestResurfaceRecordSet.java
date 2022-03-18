@@ -65,7 +65,7 @@ public class TestResurfaceRecordSet {
         assertEquals(cursor.getSlice(26).toStringUtf8(), "session_fields");                        // 26 (v3)
         assertEquals(cursor.getSlice(27).toStringUtf8(), "cookies");                               // 27 (v3)
         assertEquals(cursor.getLong(28), 56);                                                      // 28 (v3)
-        assertEquals(cursor.getSlice(29).toStringUtf8(), "COMPLETED");                             // 29 (v3.1)
+        assertEquals(cursor.getSlice(29).toStringUtf8(), "LEAKING");                               // 29 (v3.1)
         assertEquals(cursor.getLong(30), 68);                                                      // 30 (v3.1)
         assertEquals(cursor.getLong(31), 31);                                                      // 31 (v3.1)
         assertEquals(cursor.getLong(32), 32);                                                      // 32 (v3.1)

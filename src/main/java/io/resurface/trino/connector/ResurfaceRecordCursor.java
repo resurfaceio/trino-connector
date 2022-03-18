@@ -191,36 +191,30 @@ public class ResurfaceRecordCursor implements RecordCursor {
             case 27: // v3
                 return getSliceFromField(message.cookies);
             case 29: // v3.1
-                Slice type = getSliceFromField(message.response_json_type);
-                if (MALFORMED.equals(type)) return MALFORMED;
-                Slice body = getSliceFromField(message.response_body);
-                if (body.indexOf(FIND_EXCEPTION) >= 0) return PAYLOAD_ERROR;
-                if ((ARRAY.equals(type) || OBJECT.equals(type)) && (body.indexOf(FIND_ERROR)) >= 0) return PAYLOAD_ERROR;
-                try {
-                    int code = Integer.parseInt(getSliceFromField(message.response_code).toStringUtf8());
-                    if (code == 401) return UNAUTHORIZED;
-                    else if (code == 403) return FORBIDDEN;
-                    else if (code == 429) return THROTTLED;
-                    else if (code == 400 || code == 402 || code > 403) return HTTP_ERROR;
-                } catch (NumberFormatException nfe) {
-                    // do nothing
-                }
-                return COMPLETED;
+                int bitmap_response_info = message.bitmap_response_info.value();
+                if (message.bitmap_response_leak.value() != 0) return LEAKING;
+                else if ((message.bitmap_response_threat.value() & 0x02) != 0) return MALFORMED;
+                else if ((bitmap_response_info & 0x40) != 0) return REDIRECTED;
+                else if ((bitmap_response_info & 0x80) != 0) return UNAUTHORIZED;
+                else if ((bitmap_response_info & 0x0100) != 0) return FORBIDDEN;
+                else if ((bitmap_response_info & 0x0200) != 0) return THROTTLED;
+                else if ((bitmap_response_info & 0x0400) != 0) return CLIENT_ERROR;
+                else if ((bitmap_response_info & 0x0800) != 0) return SERVER_ERROR;
+                else if ((message.bitmap_response_json.value() & 0x10) != 0) return JSON_ERROR;
+                else return COMPLETED;
             default:
                 throw new IllegalArgumentException("Cannot get as string: " + column_names[field]);
         }
     }
 
-    private static final Slice FIND_ERROR = utf8Slice("\"errors\":");
-    private static final Slice FIND_EXCEPTION = utf8Slice("Exception:");
-
-    private static final Slice ARRAY = utf8Slice("ARRAY");
+    private static final Slice CLIENT_ERROR = utf8Slice("CLIENT_ERROR");
     private static final Slice COMPLETED = utf8Slice("COMPLETED");
     private static final Slice FORBIDDEN = utf8Slice("FORBIDDEN");
-    private static final Slice HTTP_ERROR = utf8Slice("HTTP_ERROR");
+    private static final Slice JSON_ERROR = utf8Slice("JSON_ERROR");
+    private static final Slice LEAKING = utf8Slice("LEAKING");
     private static final Slice MALFORMED = utf8Slice("MALFORMED");
-    private static final Slice OBJECT = utf8Slice("OBJECT");
-    private static final Slice PAYLOAD_ERROR = utf8Slice("PAYLOAD_ERROR");
+    private static final Slice REDIRECTED = utf8Slice("REDIRECTED");
+    private static final Slice SERVER_ERROR = utf8Slice("SERVER_ERROR");
     private static final Slice THROTTLED = utf8Slice("THROTTLED");
     private static final Slice UNAUTHORIZED = utf8Slice("UNAUTHORIZED");
 
