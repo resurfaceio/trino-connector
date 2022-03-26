@@ -77,7 +77,7 @@
         <dependency>
             <groupId>com.google.inject</groupId>
             <artifactId>guice</artifactId>
-            <version>5.0.1</version>
+            <version>5.1.0</version>
         </dependency>
         <dependency>
             <groupId>javax.inject</groupId>
@@ -99,7 +99,7 @@
         <dependency>
             <groupId>io.trino</groupId>
             <artifactId>trino-spi</artifactId>
-            <version>371</version>
+            <version>374</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -119,13 +119,13 @@
         <dependency>
             <groupId>io.trino</groupId>
             <artifactId>trino-main</artifactId>
-            <version>371</version>
+            <version>374</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.trino</groupId>
             <artifactId>trino-testing</artifactId>
-            <version>371</version>
+            <version>374</version>
             <scope>test</scope>
         </dependency>
         <dependency>
