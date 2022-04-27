@@ -207,16 +207,16 @@ public class ResurfaceRecordCursor implements RecordCursor {
         }
     }
 
-    private static final Slice CLIENT_ERROR = utf8Slice("CLIENT_ERROR");
-    private static final Slice COMPLETED = utf8Slice("COMPLETED");
-    private static final Slice FORBIDDEN = utf8Slice("FORBIDDEN");
-    private static final Slice JSON_ERROR = utf8Slice("JSON_ERROR");
-    private static final Slice LEAKING = utf8Slice("LEAKING");
-    private static final Slice MALFORMED = utf8Slice("MALFORMED");
-    private static final Slice REDIRECTED = utf8Slice("REDIRECTED");
-    private static final Slice SERVER_ERROR = utf8Slice("SERVER_ERROR");
-    private static final Slice THROTTLED = utf8Slice("THROTTLED");
-    private static final Slice UNAUTHORIZED = utf8Slice("UNAUTHORIZED");
+    private static final Slice CLIENT_ERROR = utf8Slice("Client Error");
+    private static final Slice COMPLETED = utf8Slice("Completed");
+    private static final Slice FORBIDDEN = utf8Slice("Forbidden");
+    private static final Slice JSON_ERROR = utf8Slice("JSON Error");
+    private static final Slice LEAKING = utf8Slice("Leaking");
+    private static final Slice MALFORMED = utf8Slice("Malformed");
+    private static final Slice REDIRECTED = utf8Slice("Redirected");
+    private static final Slice SERVER_ERROR = utf8Slice("Server Error");
+    private static final Slice THROTTLED = utf8Slice("Throttled");
+    private static final Slice UNAUTHORIZED = utf8Slice("Unauthorized");
 
     private Slice getSliceFromField(BinaryHttpMessageString field) {
         int len = field.length();
