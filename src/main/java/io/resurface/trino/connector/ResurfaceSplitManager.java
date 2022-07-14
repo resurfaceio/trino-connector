@@ -25,8 +25,7 @@ public class ResurfaceSplitManager implements ConnectorSplitManager {
 
     @Override
     public ConnectorSplitSource getSplits(ConnectorTransactionHandle transactionHandle, ConnectorSession session,
-                                          ConnectorTableHandle table, SplitSchedulingStrategy splitSchedulingStrategy,
-                                          DynamicFilter dynamicFilter) {
+                                          ConnectorTableHandle table, DynamicFilter dynamicFilter, Constraint constraint) {
         List<ConnectorSplit> splits = new ArrayList<>();
         for (Node node : nodeManager.getAllNodes()) {
             for (int i = 1; i <= config.getMessagesSlabs(); i++) {

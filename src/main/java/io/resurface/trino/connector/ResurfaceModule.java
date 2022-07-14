@@ -17,7 +17,6 @@ public class ResurfaceModule implements Module {
         binder.bind(ResurfaceMetadata.class).in(Scopes.SINGLETON);
         binder.bind(ResurfaceSplitManager.class).in(Scopes.SINGLETON);
         binder.bind(ResurfaceRecordSetProvider.class).in(Scopes.SINGLETON);
-        binder.bind(ResurfaceHandleResolver.class).in(Scopes.SINGLETON);
         binder.bind(ResurfaceTables.class).in(Scopes.SINGLETON);
     }
 
