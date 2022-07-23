@@ -3,7 +3,7 @@ Custom connector for Trino
 
 ## System requirements
 
-* Java 11
+* Java 17
 * Maven
 
 ## Configuring local environment
