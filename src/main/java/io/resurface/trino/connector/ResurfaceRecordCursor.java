@@ -6,7 +6,9 @@ import io.airlift.log.Logger;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
 import io.resurface.binfiles.BinaryHttpMessage;
-import io.resurface.binfiles.BinaryHttpMessageString;
+import io.resurface.binfiles.CompressedHttpMessage;
+import io.resurface.binfiles.PersistentHttpMessage;
+import io.resurface.binfiles.PersistentHttpMessageString;
 import io.trino.spi.connector.RecordCursor;
 import io.trino.spi.connector.SchemaTableName;
 import io.trino.spi.type.Type;
@@ -41,7 +43,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
     private final Type[] column_types;
     private final FilesIterator iterator;
     private final Logger log = Logger.get(ResurfaceRecordCursor.class);
-    private BinaryHttpMessage message = new BinaryHttpMessage();
+    private PersistentHttpMessage message;
 
     @Override
     public boolean advanceNextPosition() {
@@ -218,10 +220,9 @@ public class ResurfaceRecordCursor implements RecordCursor {
     private static final Slice THROTTLED = utf8Slice("Throttled");
     private static final Slice UNAUTHORIZED = utf8Slice("Unauthorized");
 
-    private Slice getSliceFromField(BinaryHttpMessageString field) {
-        int len = field.length();
+    private Slice getSliceFromField(PersistentHttpMessageString field) {
         try {
-            return len == 0 ? Slices.EMPTY_SLICE : Slices.wrappedBuffer(field.buffer(), field.offset(), len);
+            return field.length() == 0 ? Slices.EMPTY_SLICE : field.toSlice();
         } catch (Exception e) {
             log.error("getSliceFromField failed:"
                     + "\nfield.length=" + field.length()
@@ -420,10 +421,10 @@ public class ResurfaceRecordCursor implements RecordCursor {
 
         private FastBufferedInputStream createNextStream() {
             if (!files.hasNext()) return null;
-            File file = files.next();
+            File f = files.next();
             try {
-                FileInputStream fis = new FileInputStream(file);
-                return new FastBufferedInputStream(fis, 1000000);
+                message = f.getName().endsWith(".blkc") ? new CompressedHttpMessage() : new BinaryHttpMessage();
+                return new FastBufferedInputStream(new FileInputStream(f), 1000000);
             } catch (FileNotFoundException e) {
                 return createNextStream();
             }

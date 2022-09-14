@@ -47,7 +47,7 @@ public class ResurfaceTables {
 
     public List<File> getFiles(SchemaTableName table, int slab) {
         return location.files().stream()
-                .filter(f -> !f.isHidden() && f.getName().endsWith(".blk"))
+                .filter(f -> !f.isHidden() && (f.getName().endsWith(".blk") || f.getName().endsWith(".blkc")))
                 .filter(f -> f.getName().startsWith(table.getTableName() + "." + slab))
                 .collect(Collectors.toList());
     }
