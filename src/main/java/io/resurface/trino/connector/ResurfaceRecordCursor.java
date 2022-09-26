@@ -222,7 +222,7 @@ public class ResurfaceRecordCursor implements RecordCursor {
 
     private Slice getSliceFromField(PersistentHttpMessageString field) {
         try {
-            return field.length() == 0 ? Slices.EMPTY_SLICE : field.toSlice();
+            return field.isNull() ? Slices.EMPTY_SLICE : field.toSlice();
         } catch (Exception e) {
             log.error("getSliceFromField failed:"
                     + "\nfield.length=" + field.length()
@@ -287,47 +287,47 @@ public class ResurfaceRecordCursor implements RecordCursor {
     public boolean isNull(int field) {
         switch (column_ordinal_positions[field]) {
             case 0:
-                return message.id.length() == 0;
+                return message.id.isNull();
             case 1:
-                return message.agent_category.length() == 0;
+                return message.agent_category.isNull();
             case 2:
-                return message.agent_device.length() == 0;
+                return message.agent_device.isNull();
             case 3:
-                return message.agent_name.length() == 0;
+                return message.agent_name.isNull();
             case 4: // v3
-                return message.graphql_operations.length() == 0;
+                return message.graphql_operations.isNull();
             case 5: // v3
                 return false;  // graphql_operations_count
             case 6:
-                return message.host.length() == 0;
+                return message.host.isNull();
             case 7:
                 return message.interval_millis.value() == 0;
             case 8:
-                return message.request_body.length() == 0;
+                return message.request_body.isNull();
             case 9:
-                return message.request_content_type.length() == 0;
+                return message.request_content_type.isNull();
             case 10:
-                return message.request_headers.length() == 0;
+                return message.request_headers.isNull();
             case 11:
-                return message.request_json_type.length() == 0;
+                return message.request_json_type.isNull();
             case 12:
-                return message.request_method.length() == 0;
+                return message.request_method.isNull();
             case 13:
-                return message.request_params.length() == 0;
+                return message.request_params.isNull();
             case 14:
-                return message.request_url.length() == 0;
+                return message.request_url.isNull();
             case 15:
-                return message.request_user_agent.length() == 0;
+                return message.request_user_agent.isNull();
             case 16:
-                return message.response_body.length() == 0;
+                return message.response_body.isNull();
             case 17:
-                return message.response_code.length() == 0;
+                return message.response_code.isNull();
             case 18:
-                return message.response_content_type.length() == 0;
+                return message.response_content_type.isNull();
             case 19:
-                return message.response_headers.length() == 0;
+                return message.response_headers.isNull();
             case 20:
-                return message.response_json_type.length() == 0;
+                return message.response_json_type.isNull();
             case 21:
                 return message.response_time_millis.value() == 0;
             case 22:
@@ -335,13 +335,13 @@ public class ResurfaceRecordCursor implements RecordCursor {
             case 23:
                 return message.size_response_bytes.value() == 0;
             case 24: // v3
-                return message.custom_fields.length() == 0;
+                return message.custom_fields.isNull();
             case 25: // v3
-                return message.request_address.length() == 0;
+                return message.request_address.isNull();
             case 26: // v3
-                return message.session_fields.length() == 0;
+                return message.session_fields.isNull();
             case 27: // v3
-                return message.cookies.length() == 0;
+                return message.cookies.isNull();
             case 28: // v3
                 return false;  // cookies_count
             case 29: // v3.1
