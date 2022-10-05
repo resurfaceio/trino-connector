@@ -13,7 +13,7 @@ This connector can be configured for parallel splits, where multiple binary file
 ## Usage
 
 This connector is included with the Resurface database, but can be installed
-into any Trino distribution.
+into any Trino 398+ distribution.
 
 ## Dependencies
 
