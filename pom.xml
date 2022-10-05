@@ -171,6 +171,26 @@
         </developer>
     </developers>
 
+    <distributionManagement>
+        <repository>
+            <id>cloudsmith</id>
+            <url>https://maven.cloudsmith.io/resurfacelabs/public/</url>
+        </repository>
+    </distributionManagement>
+
+    <issueManagement>
+        <system>GitHub</system>
+        <url>https://github.com/resurfaceio/ndjson/issues</url>
+    </issueManagement>
+
+    <licenses>
+        <license>
+            <name>Apache License, Version 2.0</name>
+            <url>http://www.apache.org/licenses/LICENSE-2.0.txt</url>
+            <distribution>repo</distribution>
+        </license>
+    </licenses>
+
     <organization>
         <name>resurface.io</name>
         <url>https://resurface.io</url>
@@ -185,16 +205,12 @@
 
     <repositories>
         <repository>
-            <id>resurfacelabs-internal</id>
-            <url>https://dl.cloudsmith.io/cm5xAYS2KeL9Y5qA/resurfacelabs/internal/maven/</url>
+            <id>resurfacelabs-public</id>
+            <url>https://dl.cloudsmith.io/public/resurfacelabs/public/maven/</url>
             <releases>
                 <enabled>true</enabled>
                 <updatePolicy>always</updatePolicy>
             </releases>
-            <snapshots>
-                <enabled>true</enabled>
-                <updatePolicy>always</updatePolicy>
-            </snapshots>
         </repository>
     </repositories>
 
