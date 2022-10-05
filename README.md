@@ -17,11 +17,6 @@ the Resurface database, but can also be used independently.
 * Trino SPI
 * [resurfaceio/binfiles](https://github.com/resurfaceio/binfiles)
 
-## Usage
-
-This connector is included with the Resurface database, but can be installed
-into any Trino distribution.
-
 ## Configuring Local Environment
 
 ```
@@ -42,6 +37,11 @@ cp -r ./target/resurfaceio-trino-connector-3.3.5 $TRINO_HOME/plugin/resurface
 5. Start Trino
 bash bin/launcher run
 ```
+
+## Usage
+
+This connector is included with the Resurface database, but can be installed
+into any Trino distribution.
 
 ---
 <small>&copy; 2016-2022 <a href="https://resurface.io">Resurface Labs Inc.</a></small>
