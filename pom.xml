@@ -180,7 +180,7 @@
 
     <issueManagement>
         <system>GitHub</system>
-        <url>https://github.com/resurfaceio/ndjson/issues</url>
+        <url>https://github.com/resurfaceio/trino-connector/issues</url>
     </issueManagement>
 
     <licenses>
