@@ -2,10 +2,8 @@
 Custom connector for Trino
 
 This open source Java library allows [Trino](https://trino.io) to run SQL queries against
-[Resurface binary files](https://github.com/resurfaceio/binfiles). This connector
-provides table and column definitions, helpful custom functions, and management for
-persistent and volatile view definitions. This connector is installed as part of
-the Resurface database, but can also be used independently.
+[Resurface binary files](https://github.com/resurfaceio/binfiles). This connector provides table and column definitions,
+virtual column definitions, helpful custom functions, and management for persistent and volatile view definitions.
 
 [![CodeFactor](https://www.codefactor.io/repository/github/resurfaceio/trino-connector/badge)](https://www.codefactor.io/repository/github/resurfaceio/trino-connector)
 [![License](https://img.shields.io/github/license/resurfaceio/trino-connector)](https://github.com/resurfaceio/trino-connector/blob/v3.3.x/LICENSE)
