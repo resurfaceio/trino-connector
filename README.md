@@ -11,6 +11,11 @@ the Resurface database, but can also be used independently.
 [![License](https://img.shields.io/github/license/resurfaceio/trino-connector)](https://github.com/resurfaceio/trino-connector/blob/v3.3.x/LICENSE)
 [![Contributing](https://img.shields.io/badge/contributions-welcome-green.svg)](https://github.com/resurfaceio/trino-connector/blob/v3.3.x/CONTRIBUTING.md)
 
+## Usage
+
+This connector is included with the Resurface database, but can be installed
+into any Trino distribution.
+
 ## Dependencies
 
 * Java 17
@@ -37,11 +42,6 @@ cp -r ./target/resurfaceio-trino-connector-3.3.5 $TRINO_HOME/plugin/resurface
 5. Start Trino
 bash bin/launcher run
 ```
-
-## Usage
-
-This connector is included with the Resurface database, but can be installed
-into any Trino distribution.
 
 ---
 <small>&copy; 2016-2022 <a href="https://resurface.io">Resurface Labs Inc.</a></small>
