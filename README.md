@@ -7,8 +7,8 @@ definitions, virtual column definitions, helpful custom functions, and managemen
 This connector can be configured for parallel splits, where multiple binary files are read in parallel for best performance.
 
 [![CodeFactor](https://www.codefactor.io/repository/github/resurfaceio/trino-connector/badge)](https://www.codefactor.io/repository/github/resurfaceio/trino-connector)
-[![License](https://img.shields.io/github/license/resurfaceio/trino-connector)](https://github.com/resurfaceio/trino-connector/blob/v3.3.x/LICENSE)
-[![Contributing](https://img.shields.io/badge/contributions-welcome-green.svg)](https://github.com/resurfaceio/trino-connector/blob/v3.3.x/CONTRIBUTING.md)
+[![License](https://img.shields.io/github/license/resurfaceio/trino-connector)](https://github.com/resurfaceio/trino-connector/blob/v3.5.x/LICENSE)
+[![Contributing](https://img.shields.io/badge/contributions-welcome-green.svg)](https://github.com/resurfaceio/trino-connector/blob/v3.5.x/CONTRIBUTING.md)
 
 ## Usage
 
@@ -36,7 +36,7 @@ mvn package
 
 4. Copy output to Trino
 rm -rf $TRINO_HOME/plugin/resurface
-cp -r ./target/resurfaceio-trino-connector-3.3.7 $TRINO_HOME/plugin/resurface
+cp -r ./target/resurfaceio-trino-connector-3.5.1 $TRINO_HOME/plugin/resurface
 
 5. Start Trino
 bash bin/launcher run
