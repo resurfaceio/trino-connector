@@ -13,7 +13,7 @@ import static org.testng.Assert.assertEquals;
 public class TestResurfaceSplit {
 
     private final HostAddress address = HostAddress.fromParts("localhost", 1234);
-    private final ResurfaceSplit split = new ResurfaceSplit(address, 1);
+    private final ResurfaceSplit split = new ResurfaceSplit(address, "test_node_id", 1);
 
     @Test
     public void testJsonRoundTrip() {
@@ -23,6 +23,7 @@ public class TestResurfaceSplit {
 
         assertEquals(copy.getAddress(), split.getAddress());
         assertEquals(copy.getAddresses(), ImmutableList.of(address));
+        assertEquals(copy.getNodeId(), split.getNodeId());
         assertEquals(copy.getSlab(), split.getSlab());
         assertEquals(copy.isRemotelyAccessible(), false);
     }

@@ -29,7 +29,7 @@ public class ResurfaceSplitManager implements ConnectorSplitManager {
         List<ConnectorSplit> splits = new ArrayList<>();
         for (Node node : nodeManager.getAllNodes()) {
             for (int i = 1; i <= config.getMessagesSlabs(); i++) {
-                splits.add(new ResurfaceSplit(node.getHostAndPort(), i));
+                splits.add(new ResurfaceSplit(node.getHostAndPort(), node.getNodeIdentifier(), i));
             }
         }
         return new FixedSplitSource(splits);

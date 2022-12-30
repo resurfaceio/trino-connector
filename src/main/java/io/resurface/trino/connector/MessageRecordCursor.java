@@ -5,12 +5,10 @@ package io.resurface.trino.connector;
 import io.airlift.log.Logger;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
-import io.resurface.binfiles.BinaryHttpMessage;
 import io.resurface.binfiles.CompressedHttpMessage;
 import io.resurface.binfiles.PersistentHttpMessage;
 import io.resurface.binfiles.PersistentHttpMessageString;
 import io.trino.spi.connector.RecordCursor;
-import io.trino.spi.connector.SchemaTableName;
 import io.trino.spi.type.Type;
 import it.unimi.dsi.fastutil.io.FastBufferedInputStream;
 
@@ -20,44 +18,73 @@ import java.util.List;
 
 import static io.airlift.slice.Slices.utf8Slice;
 
-public class ResurfaceRecordCursor implements RecordCursor {
+public class MessageRecordCursor implements RecordCursor {
 
-    public ResurfaceRecordCursor(ResurfaceTables tables, List<ResurfaceColumnHandle> columns, SchemaTableName tableName, int slab) {
-        try {
-            this.column_names = new String[columns.size()];
-            this.column_ordinal_positions = new int[columns.size()];
-            this.column_types = new Type[columns.size()];
-            for (int i = 0; i < columns.size(); i++) {
-                this.column_names[i] = columns.get(i).getColumnName();
-                this.column_ordinal_positions[i] = columns.get(i).getOrdinalPosition();
-                this.column_types[i] = columns.get(i).getColumnType();
-            }
-            this.iterator = new FilesIterator(tables.getFiles(tableName, slab).iterator());
-        } catch (IOException e) {
-            throw new UncheckedIOException(e);
+    public MessageRecordCursor(ResurfaceTables tables, List<ResurfaceColumnHandle> columns, ResurfaceTableHandle handle, int slab) {
+        this.column_names = new String[columns.size()];
+        this.column_ordinal_positions = new int[columns.size()];
+        this.column_types = new Type[columns.size()];
+        for (int i = 0; i < columns.size(); i++) {
+            this.column_names[i] = columns.get(i).getColumnName();
+            this.column_ordinal_positions[i] = columns.get(i).getOrdinalPosition();
+            this.column_types[i] = columns.get(i).getColumnType();
         }
+        this.files = tables.getFiles(handle, slab).iterator();
+        this.stream = buildNextStream();
     }
 
     private final String[] column_names;
     private final int[] column_ordinal_positions;
     private final Type[] column_types;
-    private final FilesIterator iterator;
-    private final Logger log = Logger.get(ResurfaceRecordCursor.class);
+    private final Iterator<File> files;
+    private final Logger log = Logger.get(MessageRecordCursor.class);
     private PersistentHttpMessage message;
+    private Slice shard_file;
+    private FastBufferedInputStream stream;
 
     @Override
     public boolean advanceNextPosition() {
         try {
-            iterator.readMessage();
-            return message != null;
+            while (stream != null) {
+                try {
+                    message.read(stream);
+                    return true;
+                } catch (EOFException | RuntimeException | StreamCorruptedException e) {
+                    stream.close();
+                    stream = buildNextStream();
+                }
+            }
+            message = null;
+            return false;
         } catch (IOException e) {
             throw new UncheckedIOException(e);
         }
     }
 
+    private FastBufferedInputStream buildNextStream() {
+        if (!files.hasNext()) {
+            return null;
+        } else {
+            File f = files.next();
+            try {
+                message = new CompressedHttpMessage();
+                shard_file = utf8Slice(f.getName());
+                return new FastBufferedInputStream(new FileInputStream(f), 1000000);
+            } catch (FileNotFoundException e) {
+                return buildNextStream();
+            }
+        }
+    }
+
     @Override
     public void close() {
-        iterator.close();
+        if (stream != null) {
+            try {
+                stream.close();
+            } catch (IOException ignored) {
+                // nothing to do here
+            }
+        }
     }
 
     @Override
@@ -204,6 +231,8 @@ public class ResurfaceRecordCursor implements RecordCursor {
                 else if ((bitmap_response_info & 0x0800) != 0) return SERVER_ERROR;
                 else if ((message.bitmap_response_json.value() & 0x10) != 0) return JSON_ERROR;
                 else return COMPLETED;
+            case 49: // v3.5
+                return shard_file;
             default:
                 throw new IllegalArgumentException("Cannot get as string: " + column_names[field]);
         }
@@ -384,55 +413,11 @@ public class ResurfaceRecordCursor implements RecordCursor {
                 return false;  // bitmap_unused4
             case 48: // v3.1
                 return false;  // bitmap_unused5
+            case 49: // v3.5
+                return false;  // shard_file
             default:
                 throw new IllegalArgumentException("Invalid field index: " + field);
         }
-    }
-
-    private class FilesIterator {
-
-        public FilesIterator(Iterator<File> files) throws IOException {
-            this.files = files;
-            this.stream = createNextStream();
-        }
-
-        public void close() {
-            if (stream != null) {
-                try {
-                    stream.close();
-                } catch (IOException ignored) {
-                    // nothing to do here
-                }
-            }
-        }
-
-        public void readMessage() throws IOException {
-            while (stream != null) {
-                try {
-                    message.read(stream);
-                    return;
-                } catch (EOFException | RuntimeException | StreamCorruptedException e) {
-                    stream.close();
-                    stream = createNextStream();
-                }
-            }
-            message = null;
-        }
-
-        private FastBufferedInputStream createNextStream() {
-            if (!files.hasNext()) return null;
-            File f = files.next();
-            try {
-                message = f.getName().endsWith(".blkc") ? new CompressedHttpMessage() : new BinaryHttpMessage();
-                return new FastBufferedInputStream(new FileInputStream(f), 1000000);
-            } catch (FileNotFoundException e) {
-                return createNextStream();
-            }
-        }
-
-        private final Iterator<File> files;
-        private FastBufferedInputStream stream;
-
     }
 
 }

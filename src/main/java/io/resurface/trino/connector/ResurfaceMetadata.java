@@ -10,6 +10,7 @@ import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import io.trino.spi.TrinoException;
 import io.trino.spi.connector.*;
+import io.trino.spi.predicate.TupleDomain;
 
 import javax.inject.Inject;
 import java.io.File;
@@ -48,6 +49,19 @@ public class ResurfaceMetadata implements ConnectorMetadata {
 
     private final ResurfaceTables tables;
     private final Map<SchemaTableName, ConnectorViewDefinition> views = new HashMap<>();
+
+    @Override
+    public Optional<ConstraintApplicationResult<ConnectorTableHandle>> applyFilter(ConnectorSession session, ConnectorTableHandle table, Constraint constraint) {
+        ResurfaceTableHandle handle = (ResurfaceTableHandle) table;
+        TupleDomain<ColumnHandle> oldDomain = handle.getConstraint();
+        TupleDomain<ColumnHandle> newDomain = oldDomain.intersect(constraint.getSummary());
+        if (oldDomain.equals(newDomain)) {
+            return Optional.empty();
+        } else {
+            handle = new ResurfaceTableHandle(handle.getSchemaTableName(), newDomain);
+            return Optional.of(new ConstraintApplicationResult<>(handle, constraint.getSummary(), false));
+        }
+    }
 
     @Override
     public Map<String, ColumnHandle> getColumnHandles(ConnectorSession session, ConnectorTableHandle table) {

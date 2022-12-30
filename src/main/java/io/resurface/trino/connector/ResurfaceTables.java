@@ -4,16 +4,23 @@ package io.resurface.trino.connector;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.ImmutableMap;
+import io.trino.spi.connector.ColumnHandle;
 import io.trino.spi.connector.ColumnMetadata;
 import io.trino.spi.connector.SchemaTableName;
+import io.trino.spi.predicate.NullableValue;
 
 import javax.inject.Inject;
 import java.io.File;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import static io.airlift.slice.Slices.utf8Slice;
 import static io.trino.spi.type.BigintType.BIGINT;
+import static io.trino.spi.type.BooleanType.BOOLEAN;
 import static io.trino.spi.type.IntegerType.INTEGER;
 import static io.trino.spi.type.VarcharType.createUnboundedVarcharType;
 
@@ -22,21 +29,20 @@ public class ResurfaceTables {
     @Inject
     public ResurfaceTables(ResurfaceConfig config) {
         location = new DataLocation(config.getMessagesDir());
-        slabs = config.getMessagesSlabs();
         viewsDir = config.getViewsDir();
 
-        SchemaTableName table = MessageTable.getSchemaTableName();
         ImmutableMap.Builder<SchemaTableName, ResurfaceTableHandle> tablesBuilder = ImmutableMap.builder();
-        tablesBuilder.put(table, new ResurfaceTableHandle(table));
+        tablesBuilder.put(MessageTable.getSchemaTableName(), new ResurfaceTableHandle(MessageTable.getSchemaTableName()));
+        tablesBuilder.put(ShardTable.getSchemaTableName(), new ResurfaceTableHandle(ShardTable.getSchemaTableName()));
         tables = tablesBuilder.build();
 
         ImmutableMap.Builder<SchemaTableName, List<ColumnMetadata>> tableColumnsBuilder = ImmutableMap.builder();
-        tableColumnsBuilder.put(table, MessageTable.getColumns());
+        tableColumnsBuilder.put(MessageTable.getSchemaTableName(), MessageTable.getColumns());
+        tableColumnsBuilder.put(ShardTable.getSchemaTableName(), ShardTable.getColumns());
         tableColumns = tableColumnsBuilder.build();
     }
 
     private final DataLocation location;
-    private final int slabs;
     private final Map<SchemaTableName, ResurfaceTableHandle> tables;
     private final Map<SchemaTableName, List<ColumnMetadata>> tableColumns;
     private final String viewsDir;
@@ -45,15 +51,38 @@ public class ResurfaceTables {
         return tableColumns.get(tableHandle.getSchemaTableName());
     }
 
-    public List<File> getFiles(SchemaTableName table, int slab) {
+    public List<File> getFiles(ResurfaceTableHandle handle, int slab) {
         return location.files().stream()
-                .filter(f -> !f.isHidden() && (f.getName().endsWith(".blk") || f.getName().endsWith(".blkc")))
-                .filter(f -> f.getName().startsWith(table.getTableName() + "." + slab))
+                .filter(f -> !f.isHidden())
+                .filter(f -> f.getName().startsWith("message." + slab))
+                .filter(f -> f.getName().endsWith(".blkc"))
+                .filter(f -> getPredicateTest(f, handle))
                 .collect(Collectors.toList());
     }
 
-    public int getSlabs() {
-        return slabs;
+    public String getOpenFile() {
+        List<File> files = location.files().stream()
+                .filter(f -> !f.isHidden())
+                .filter(f -> f.getName().equals("open_shard"))
+                .collect(Collectors.toList());
+
+        if (files.size() == 0) {
+            return null;
+        } else if (files.size() == 1) {
+            try {
+                return Files.readString(files.get(0).toPath());
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            throw new RuntimeException("Unexpected number of active files: " + files.size());
+        }
+    }
+
+    private boolean getPredicateTest(File f, ResurfaceTableHandle h) {
+        Map<ColumnHandle, NullableValue> x = new HashMap<>();
+        x.put(MessageTable.SHARD_FILE, new NullableValue(createUnboundedVarcharType(), utf8Slice(f.getName())));
+        return h.getConstraint().asPredicate().test(x);
     }
 
     public ResurfaceTableHandle getTable(SchemaTableName tableName) {
@@ -115,10 +144,35 @@ public class ResurfaceTables {
                 new ColumnMetadata("bitmap_unused2", BIGINT),                                      // 45 (v3.1)
                 new ColumnMetadata("bitmap_unused3", BIGINT),                                      // 46 (v3.1)
                 new ColumnMetadata("bitmap_unused4", BIGINT),                                      // 47 (v3.1)
-                new ColumnMetadata("bitmap_unused5", BIGINT)                                       // 48 (v3.1)
+                new ColumnMetadata("bitmap_unused5", BIGINT),                                      // 48 (v3.1)
+                new ColumnMetadata("shard_file", createUnboundedVarcharType())                     // 49 (v3.5)
         );
 
+        public static final ColumnHandle SHARD_FILE = new ResurfaceColumnHandle("shard_file", createUnboundedVarcharType(), 49);
+
         public static final String TABLE_NAME = "message";
+
+        public static List<ColumnMetadata> getColumns() {
+            return COLUMNS;
+        }
+
+        public static SchemaTableName getSchemaTableName() {
+            return new SchemaTableName(ResurfaceMetadata.SCHEMA_DATA, TABLE_NAME);
+        }
+
+    }
+
+    public static final class ShardTable {
+
+        public static final List<ColumnMetadata> COLUMNS = ImmutableList.of(
+                new ColumnMetadata("node_id", createUnboundedVarcharType()),                       // 0 (v3.5)
+                new ColumnMetadata("shard_file", createUnboundedVarcharType()),                    // 1 (v3.5)
+                new ColumnMetadata("last_modified", BIGINT),                                       // 2 (v3.5)
+                new ColumnMetadata("length_bytes", BIGINT),                                        // 3 (v3.5)
+                new ColumnMetadata("open_for_writes", BOOLEAN)                                     // 4 (v3.5)
+        );
+
+        public static final String TABLE_NAME = "shard";
 
         public static List<ColumnMetadata> getColumns() {
             return COLUMNS;

@@ -31,14 +31,10 @@ export TRINO_HOME=$HOME/...
 2. Create $TRINO_HOME/etc/catalog/resurface.properties:
 connector.name=resurface
 
-3. Build the connector
-mvn package
+3. Build the connector and redeploy
+mvn clean package && rm -rf $TRINO_HOME/plugin/resurface && cp -r ./target/resurfaceio-trino-connector-3.5.1 $TRINO_HOME/plugin/resurface
 
-4. Copy output to Trino
-rm -rf $TRINO_HOME/plugin/resurface
-cp -r ./target/resurfaceio-trino-connector-3.5.1 $TRINO_HOME/plugin/resurface
-
-5. Start Trino
+4. Start Trino
 bash bin/launcher run
 ```
 
