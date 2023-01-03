@@ -39,4 +39,4 @@ bash bin/launcher run
 ```
 
 ---
-<small>&copy; 2016-2022 <a href="https://resurface.io">Resurface Labs Inc.</a></small>
+<small>&copy; 2016-2023 <a href="https://resurface.io">Resurface Labs Inc.</a></small>
