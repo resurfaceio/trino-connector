@@ -35,6 +35,7 @@ connector.name=resurface
 mvn clean package && rm -rf $TRINO_HOME/plugin/resurface && cp -r ./target/resurfaceio-trino-connector-3.5.4 $TRINO_HOME/plugin/resurface
 
 4. Start Trino
+cd $TRINO_HOME
 bash bin/launcher run
 ```
 
