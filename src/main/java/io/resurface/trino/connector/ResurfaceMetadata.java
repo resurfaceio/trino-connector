@@ -35,11 +35,13 @@ public class ResurfaceMetadata implements ConnectorMetadata {
 
     public static final String SCHEMA_RUNTIME = "runtime";
 
+    public static final String SCHEMA_RUNTIME_INDEXES = "runtime_indexes";
+
     public static final String SCHEMA_SETTINGS = "settings";
 
     public static final String SCHEMA_VOLATILE = "volatile";
 
-    public static final List<String> SCHEMA_NAMES = ImmutableList.of(SCHEMA_DATA, SCHEMA_RUNTIME, SCHEMA_SETTINGS, SCHEMA_VOLATILE);
+     public static final List<String> SCHEMA_NAMES = ImmutableList.of(SCHEMA_DATA, SCHEMA_RUNTIME, SCHEMA_RUNTIME_INDEXES, SCHEMA_SETTINGS, SCHEMA_VOLATILE);
 
     @Inject
     public ResurfaceMetadata(ResurfaceTables tables) {
