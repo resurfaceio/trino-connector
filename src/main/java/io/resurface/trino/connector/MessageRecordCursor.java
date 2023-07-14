@@ -219,7 +219,7 @@ public class MessageRecordCursor implements RecordCursor {
                 return getSliceFromField(message.session_fields);
             case 27: // v3
                 return getSliceFromField(message.cookies);
-            case 29: // v3.1
+            case 29: // v3.1 (response_status)
                 int bitmap_response_info = message.bitmap_response_info.value();
                 if (message.bitmap_response_leak.value() != 0) return LEAKING;
                 else if ((message.bitmap_response_threat.value() & 0x02) != 0) return MALFORMED;
