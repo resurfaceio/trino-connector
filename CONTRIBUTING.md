@@ -1,5 +1,5 @@
 # Contributing to resurfaceio-trino-connector
-&copy; 2016-2023 Resurface Labs Inc.
+&copy; 2016-2023 Graylog, Inc.
 
 ## Coding Conventions
 
