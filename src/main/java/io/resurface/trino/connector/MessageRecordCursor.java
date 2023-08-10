@@ -303,7 +303,7 @@ public class MessageRecordCursor implements RecordCursor {
                     + "\nmessage.request_address.offset=" + message.request_address.offset()
                     + "\nmessage.session_fields.offset=" + message.session_fields.offset()
                     + "\nmessage.cookies.offset=" + message.cookies.offset());
-            throw e;
+            return Slices.EMPTY_SLICE;
         }
     }
 
