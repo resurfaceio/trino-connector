@@ -41,14 +41,14 @@ mvn versions:display-dependency-updates
 Push artifacts to Cloudsmith:
 
 ```bash
-bash deploy.sh 3.5.(BUILD_NUMBER)
+bash deploy.sh 3.6.(BUILD_NUMBER)
 ```
 
 Tag release version:
 
 ```bash
-git tag v3.5.(BUILD_NUMBER)
-git push origin v3.5.x --tags
+git tag v3.6.(BUILD_NUMBER)
+git push origin v3.6.x --tags
 ```
 
 Start the next version by incrementing the version number. (search and replace)
