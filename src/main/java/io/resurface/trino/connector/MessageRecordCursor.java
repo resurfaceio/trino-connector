@@ -220,34 +220,13 @@ public class MessageRecordCursor implements RecordCursor {
             case 27: // v3
                 return getSliceFromField(message.cookies);
             case 29: // v3.1 (response_status)
-                int bitmap_response_info = message.bitmap_response_info.value();
-                if (message.bitmap_response_leak.value() != 0) return LEAKING;
-                else if ((message.bitmap_response_threat.value() & 0x02) != 0) return MALFORMED;
-                else if ((bitmap_response_info & 0x40) != 0) return REDIRECTED;
-                else if ((bitmap_response_info & 0x80) != 0) return UNAUTHORIZED;
-                else if ((bitmap_response_info & 0x0100) != 0) return FORBIDDEN;
-                else if ((bitmap_response_info & 0x0200) != 0) return THROTTLED;
-                else if ((bitmap_response_info & 0x0400) != 0) return CLIENT_ERROR;
-                else if ((bitmap_response_info & 0x0800) != 0) return SERVER_ERROR;
-                else if ((message.bitmap_response_json.value() & 0x10) != 0) return JSON_ERROR;
-                else return COMPLETED;
+                return Slices.EMPTY_SLICE;
             case 49: // v3.5
                 return shard_file;
             default:
                 throw new IllegalArgumentException("Cannot get as string: " + column_names[field]);
         }
     }
-
-    private static final Slice CLIENT_ERROR = utf8Slice("Client Error");
-    private static final Slice COMPLETED = utf8Slice("Completed");
-    private static final Slice FORBIDDEN = utf8Slice("Forbidden");
-    private static final Slice JSON_ERROR = utf8Slice("JSON Error");
-    private static final Slice LEAKING = utf8Slice("Leaking");
-    private static final Slice MALFORMED = utf8Slice("Malformed");
-    private static final Slice REDIRECTED = utf8Slice("Redirected");
-    private static final Slice SERVER_ERROR = utf8Slice("Server Error");
-    private static final Slice THROTTLED = utf8Slice("Throttled");
-    private static final Slice UNAUTHORIZED = utf8Slice("Unauthorized");
 
     private Slice getSliceFromField(PersistentHttpMessageString field) {
         try {
@@ -374,7 +353,7 @@ public class MessageRecordCursor implements RecordCursor {
             case 28: // v3
                 return false;  // cookies_count
             case 29: // v3.1
-                return false;  // response_status
+                return true;   // response_status
             case 30: // v3.1
                 return false;  // size_total_bytes
             case 31: // v3.1
