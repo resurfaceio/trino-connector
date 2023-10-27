@@ -16,6 +16,23 @@ import static io.airlift.slice.Slices.utf8Slice;
 public final class ResurfaceFunctions {
 
     @SqlNullable
+    @Description("Flatten domain name")
+    @ScalarFunction("flatten_domain_name")
+    @LiteralParameters("x")
+    @SqlType("varchar(x)")
+    public static Slice flattenDomainName(@SqlType("varchar(x)") Slice domain) {
+        if (domain == null) return null;
+        String s = domain.toStringUtf8();
+        int x = s.lastIndexOf('.');
+        if (x < 0) return domain;
+        x = s.lastIndexOf('.', x - 1);
+        if (x < 0) return domain;
+        x = s.lastIndexOf('.', x - 1);
+        if (x < 0) return domain;
+        return slice(s.substring(x + 1));
+    }
+
+    @SqlNullable
     @Description("Parse host from url")
     @ScalarFunction("url_parse_host")
     @LiteralParameters("x")
@@ -42,7 +59,9 @@ public final class ResurfaceFunctions {
     @SqlType(StandardTypes.BIGINT)
     public static Long urlParsePort(@SqlType("varchar(x)") Slice url) {
         URL u = parseUrl(url);
-        return (u == null) ? null : (long) u.getPort();
+        if (u == null) return null;
+        int port = u.getPort();
+        return (port < 0) ? null : (long) port;
     }
 
     @SqlNullable
@@ -66,7 +85,7 @@ public final class ResurfaceFunctions {
     }
 
     @Nullable
-    private static URL parseUrl(Slice url) {
+    public static URL parseUrl(Slice url) {
         try {
             return new URL(url.toStringUtf8());
         } catch (MalformedURLException e) {
@@ -74,7 +93,8 @@ public final class ResurfaceFunctions {
         }
     }
 
-    private static Slice slice(@Nullable String s) {
+    @Nullable
+    public static Slice slice(String s) {
         return utf8Slice(nullToEmpty(s));
     }
 
