@@ -155,6 +155,20 @@ public class MessageRecordCursor implements RecordCursor {
                 return message.bitmap_unused4.value();
             case 48: // v3.1
                 return message.bitmap_unused5.value();
+            case 50: // v3.6
+                return message.host.length();
+            case 51: // v3.6
+                return message.request_body.length();
+            case 52: // v3.6
+                return message.request_headers.length();
+            case 53: // v3.6
+                return message.request_params.length();
+            case 54: // v3.6
+                return message.request_url.length();
+            case 55: // v3.6
+                return message.response_body.length();
+            case 56: // v3.6
+                return message.response_headers.length();
             default:
                 throw new IllegalArgumentException("Cannot get as long: " + column_names[field]);
         }
@@ -394,6 +408,20 @@ public class MessageRecordCursor implements RecordCursor {
                 return false;  // bitmap_unused5
             case 49: // v3.5
                 return false;  // shard_file
+            case 50: // v3.6
+                return false;  // size_host_bytes
+            case 51: // v3.6
+                return false;  // size_request_body_bytes
+            case 52: // v3.6
+                return false;  // size_request_headers_bytes
+            case 53: // v3.6
+                return false;  // size_request_params_bytes
+            case 54: // v3.6
+                return false;  // size_request_url_bytes
+            case 55: // v3.6
+                return false;  // size_response_body_bytes
+            case 56: // v3.6
+                return false;  // size_response_headers_bytes
             default:
                 throw new IllegalArgumentException("Invalid field index: " + field);
         }

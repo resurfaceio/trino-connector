@@ -145,7 +145,14 @@ public class ResurfaceTables {
                 new ColumnMetadata("bitmap_unused3", BIGINT),                                      // 46 (v3.1)
                 new ColumnMetadata("bitmap_unused4", BIGINT),                                      // 47 (v3.1)
                 new ColumnMetadata("bitmap_unused5", BIGINT),                                      // 48 (v3.1)
-                new ColumnMetadata("shard_file", createUnboundedVarcharType())                     // 49 (v3.5)
+                new ColumnMetadata("shard_file", createUnboundedVarcharType()),                    // 49 (v3.5)
+                new ColumnMetadata("size_host_bytes", INTEGER),                                    // 50 (v3.6)
+                new ColumnMetadata("size_request_body_bytes", INTEGER),                            // 51 (v3.6)
+                new ColumnMetadata("size_request_headers_bytes", INTEGER),                         // 52 (v3.6)
+                new ColumnMetadata("size_request_params_bytes", INTEGER),                          // 53 (v3.6)
+                new ColumnMetadata("size_request_url_bytes", INTEGER),                             // 54 (v3.6)
+                new ColumnMetadata("size_response_body_bytes", INTEGER),                           // 55 (v3.6)
+                new ColumnMetadata("size_response_headers_bytes", INTEGER)                         // 56 (v3.6)
         );
 
         public static final ColumnHandle SHARD_FILE = new ResurfaceColumnHandle("shard_file", createUnboundedVarcharType(), 49);

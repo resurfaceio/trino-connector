@@ -85,6 +85,13 @@ public class TestResurfaceRecordSet {
             assertEquals(cursor.getLong(47), 47);                                                       // 47 (v3.1)
             assertEquals(cursor.getLong(48), 48);                                                       // 48 (v3.1)
             assertEquals(cursor.getSlice(49).toStringUtf8(), "message.1.blkc");                         // 49 (v3.5)
+            assertEquals(cursor.getLong(50), 9);                                                        // 50 (v3.6)
+            assertEquals(cursor.getLong(51), 17);                                                       // 51 (v3.6)
+            assertEquals(cursor.getLong(52), 20);                                                       // 52 (v3.6)
+            assertEquals(cursor.getLong(53), 19);                                                       // 53 (v3.6)
+            assertEquals(cursor.getLong(54), 16);                                                       // 54 (v3.6)
+            assertEquals(cursor.getLong(55), 18);                                                       // 55 (v3.6)
+            assertEquals(cursor.getLong(56), 21);                                                       // 56 (v3.6)
             assertTrue(cursor.advanceNextPosition());
             assertEquals(cursor.getSlice(0).toStringUtf8(), "id2");
 
