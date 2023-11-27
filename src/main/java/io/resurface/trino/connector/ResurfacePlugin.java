@@ -18,7 +18,7 @@ public class ResurfacePlugin implements Plugin {
 
     @Override
     public Set<Class<?>> getFunctions() {
-        return ImmutableSet.<Class<?>>builder().add(ResurfaceFunctions.class).build();
+        return ImmutableSet.<Class<?>>builder().add(ResurfaceFunctions.class).add(Histosum.class).build();
     }
 
 }
