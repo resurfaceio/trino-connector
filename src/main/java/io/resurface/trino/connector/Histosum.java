@@ -26,15 +26,15 @@ public final class Histosum {
     public static void input(@AggregationState HistosumState state, @SqlType(StandardTypes.VARCHAR) Slice key, @SqlType(StandardTypes.VARCHAR) Slice value) {
         Map<String, Object> m = state.getMap();
         String k = key.toStringUtf8();
-        long v = Long.parseLong(value.toStringUtf8());
+        double v = Double.parseDouble(value.toStringUtf8());
 
         if (m == null) {
             LinkedHashMap<String, Object> seed = new LinkedHashMap<>();
             seed.put(k, v);
             state.setMap(seed);
         } else {
-            Object existing = m.getOrDefault(k, 0L);
-            m.put(k, v + ((Number) existing).longValue());
+            Object existing = m.getOrDefault(k, 0);
+            m.put(k, v + ((Number) existing).doubleValue());
         }
     }
 
@@ -54,7 +54,7 @@ public final class Histosum {
         return Stream.of(m1, m2)
                 .map(Map::entrySet)
                 .flatMap(Collection::stream)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2) -> ((Number) v1).longValue() + ((Number) v2).longValue()));
+                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2) -> ((Number) v1).doubleValue() + ((Number) v2).doubleValue()));
     }
 
     @OutputFunction(StandardTypes.VARCHAR)
