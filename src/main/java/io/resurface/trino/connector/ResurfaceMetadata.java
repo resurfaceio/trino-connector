@@ -31,6 +31,8 @@ import static java.util.Objects.requireNonNull;
 
 public class ResurfaceMetadata implements ConnectorMetadata {
 
+    public static final String SCHEMA_CUSTOM = "custom";
+
     public static final String SCHEMA_DATA = "data";
 
     public static final String SCHEMA_RUNTIME = "runtime";
@@ -43,7 +45,7 @@ public class ResurfaceMetadata implements ConnectorMetadata {
 
     public static final String SCHEMA_VOLATILE = "volatile";
 
-    public static final List<String> SCHEMA_NAMES = ImmutableList.of(SCHEMA_DATA, SCHEMA_RUNTIME, SCHEMA_RUNTIME_INDEXES, SCHEMA_SETTINGS, SCHEMA_SYSTEM, SCHEMA_VOLATILE);
+    public static final List<String> SCHEMA_NAMES = ImmutableList.of(SCHEMA_CUSTOM, SCHEMA_DATA, SCHEMA_RUNTIME, SCHEMA_RUNTIME_INDEXES, SCHEMA_SETTINGS, SCHEMA_SYSTEM, SCHEMA_VOLATILE);
 
     @Inject
     public ResurfaceMetadata(ResurfaceTables tables) {
