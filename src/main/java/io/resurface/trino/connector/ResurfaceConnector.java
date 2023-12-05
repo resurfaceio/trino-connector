@@ -29,13 +29,13 @@ public class ResurfaceConnector implements Connector {
     private final ResurfaceSplitManager splitManager;
 
     @Override
-    public ConnectorTransactionHandle beginTransaction(IsolationLevel isolationLevel, boolean readOnly) {
+    public ConnectorTransactionHandle beginTransaction(IsolationLevel isolationLevel, boolean readOnly, boolean autoCommit) {
         checkConnectorSupports(READ_COMMITTED, isolationLevel);
         return ResurfaceTransactionHandle.INSTANCE;
     }
 
     @Override
-    public ConnectorMetadata getMetadata(ConnectorTransactionHandle transactionHandle) {
+    public ConnectorMetadata getMetadata(ConnectorSession session, ConnectorTransactionHandle transactionHandle) {
         return metadata;
     }
 

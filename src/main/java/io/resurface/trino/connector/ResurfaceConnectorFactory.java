@@ -25,7 +25,7 @@ public class ResurfaceConnectorFactory implements ConnectorFactory {
                 binder -> binder.bind(NodeManager.class).toInstance(context.getNodeManager()),
                 new ResurfaceModule());
 
-        Injector injector = app.strictConfig()
+        Injector injector = app
                 .doNotInitializeLogging()
                 .setRequiredConfigurationProperties(config)
                 .initialize();
