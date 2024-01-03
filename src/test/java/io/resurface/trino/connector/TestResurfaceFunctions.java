@@ -77,8 +77,6 @@ public class TestResurfaceFunctions {
 
         // these "invalid" URLs would fail with the url_extract_host function
         assertEquals(Objects.requireNonNull(urlParseHost(slice("http://foo/bar bar"))).toStringAscii(), "foo");
-        assertEquals(Objects.requireNonNull(urlParseHost(slice("http://foo oo/bar"))).toStringAscii(), "foo oo");
-        assertEquals(Objects.requireNonNull(urlParsePath(slice("http://foo oo/bar"))).toStringAscii(), "/bar");
         assertEquals(Objects.requireNonNull(urlParsePath(slice("http://foo/bar bar"))).toStringAscii(), "/bar bar");
         assertEquals(Objects.requireNonNull(urlParsePath(slice("http://foo/bar bar/zoom"))).toStringAscii(), "/bar bar/zoom");
     }

@@ -17,7 +17,7 @@ into any Trino 407+ distribution.
 
 ## Dependencies
 
-* Java 17
+* Java 21
 * Trino SPI
 * [resurfaceio/binfiles](https://github.com/resurfaceio/binfiles)
 
