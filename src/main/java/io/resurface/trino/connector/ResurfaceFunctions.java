@@ -16,6 +16,15 @@ import static io.airlift.slice.Slices.utf8Slice;
 public final class ResurfaceFunctions {
 
     @SqlNullable
+    @Description("Read container version")
+    @ScalarFunction("container_version")
+    @SqlType("varchar")
+    public static Slice containerVersion() {
+        String x = System.getenv("CONTAINER_VERSION");
+        return (x == null) ? null : slice(x);
+    }
+
+    @SqlNullable
     @Description("Flatten domain name")
     @ScalarFunction("flatten_domain_name")
     @LiteralParameters("x")
