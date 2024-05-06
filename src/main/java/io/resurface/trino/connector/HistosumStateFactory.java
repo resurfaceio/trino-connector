@@ -33,12 +33,12 @@ public class HistosumStateFactory implements AccumulatorStateFactory<HistosumSta
         private long groupId;
 
         @Override
-        public void setGroupId(long groupId) {
+        public void setGroupId(int groupId) {
             this.groupId = groupId;
         }
 
         @Override
-        public void ensureCapacity(long size) {
+        public void ensureCapacity(int size) {
             maps.ensureCapacity(size);
         }
 
