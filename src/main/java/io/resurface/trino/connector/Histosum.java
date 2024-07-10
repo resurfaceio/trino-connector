@@ -23,18 +23,17 @@ public final class Histosum {
     private Histosum() {}
 
     @InputFunction
-    public static void input(@AggregationState HistosumState state, @SqlType(StandardTypes.VARCHAR) Slice key, @SqlType(StandardTypes.VARCHAR) Slice value) {
+    public static void input(@AggregationState HistosumState state, @SqlType(StandardTypes.VARCHAR) Slice key, @SqlType(StandardTypes.DOUBLE) double value) {
         Map<String, Object> m = state.getMap();
         String k = key.toStringUtf8();
-        double v = Double.parseDouble(value.toStringUtf8());
 
         if (m == null) {
             LinkedHashMap<String, Object> seed = new LinkedHashMap<>();
-            seed.put(k, v);
+            seed.put(k, value);
             state.setMap(seed);
         } else {
             Object existing = m.getOrDefault(k, 0);
-            m.put(k, v + ((Number) existing).doubleValue());
+            m.put(k, value + ((Number) existing).doubleValue());
         }
     }
 
