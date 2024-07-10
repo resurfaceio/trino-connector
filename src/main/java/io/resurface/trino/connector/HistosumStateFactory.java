@@ -29,7 +29,7 @@ public class HistosumStateFactory implements AccumulatorStateFactory<HistosumSta
             this.maps = new ObjectBigArray<>();
         }
 
-        private final ObjectBigArray<Map<String, Object>> maps;
+        private final ObjectBigArray<Map<String, Double>> maps;
         private long groupId;
 
         @Override
@@ -48,12 +48,12 @@ public class HistosumStateFactory implements AccumulatorStateFactory<HistosumSta
         }
 
         @Override
-        public Map<String, Object> getMap() {
+        public Map<String, Double> getMap() {
             return maps.get(groupId);
         }
 
         @Override
-        public void setMap(Map<String, Object> newMap) {
+        public void setMap(Map<String, Double> newMap) {
             maps.ensureCapacity(groupId);
             maps.set(groupId, newMap);
         }
@@ -66,15 +66,15 @@ public class HistosumStateFactory implements AccumulatorStateFactory<HistosumSta
             this.stateMap = new LinkedHashMap<>();
         }
 
-        private Map<String, Object> stateMap;
+        private Map<String, Double> stateMap;
 
         @Override
-        public Map<String, Object> getMap() {
+        public Map<String, Double> getMap() {
             return stateMap;
         }
 
         @Override
-        public void setMap(Map<String, Object> newMap) {
+        public void setMap(Map<String, Double> newMap) {
             this.stateMap = newMap;
         }
 

@@ -7,11 +7,8 @@ import io.trino.spi.block.BlockBuilder;
 import io.trino.spi.function.*;
 import io.trino.spi.type.StandardTypes;
 
-import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static io.resurface.trino.connector.HistosumStateSerializer.toJSON;
 import static io.trino.spi.type.VarcharType.VARCHAR;
@@ -24,41 +21,36 @@ public final class Histosum {
 
     @InputFunction
     public static void input(@AggregationState HistosumState state, @SqlType(StandardTypes.VARCHAR) Slice key, @SqlType(StandardTypes.DOUBLE) double value) {
-        Map<String, Object> m = state.getMap();
+        Map<String, Double> m = state.getMap();
         String k = key.toStringUtf8();
 
         if (m == null) {
-            LinkedHashMap<String, Object> seed = new LinkedHashMap<>();
+            LinkedHashMap<String, Double> seed = new LinkedHashMap<>();
             seed.put(k, value);
             state.setMap(seed);
         } else {
-            Object existing = m.getOrDefault(k, 0);
-            m.put(k, value + ((Number) existing).doubleValue());
+            m.put(k, value + m.getOrDefault(k, 0.0));
         }
     }
 
     @CombineFunction
     public static void combine(@AggregationState HistosumState s1, @AggregationState HistosumState s2) {
-        Map<String, Object> m1 = s1.getMap();
-        Map<String, Object> m2 = s2.getMap();
+        Map<String, Double> m1 = s1.getMap();
+        Map<String, Double> m2 = s2.getMap();
 
         if (m1 != null && m2 != null) {
-            s1.setMap(merge(m1, m2));
+            for (Map.Entry<String, Double> e : m2.entrySet()) {
+                String k = e.getKey();
+                m1.put(k, e.getValue() + m1.getOrDefault(k, 0.0));
+            }
         } else if (m1 == null) {
             s1.setMap(m2);
         }
     }
 
-    public static Map<String, Object> merge(Map<String, Object> m1, Map<String, Object> m2) {
-        return Stream.of(m1, m2)
-                .map(Map::entrySet)
-                .flatMap(Collection::stream)
-                .collect(Collectors.toMap(Map.Entry::getKey, Map.Entry::getValue, (v1, v2) -> ((Number) v1).doubleValue() + ((Number) v2).doubleValue()));
-    }
-
     @OutputFunction(StandardTypes.VARCHAR)
     public static void output(@AggregationState HistosumState state, BlockBuilder out) {
-        Map<String, Object> m = state.getMap();
+        Map<String, Double> m = state.getMap();
         if (m == null) {
             out.appendNull();
         } else {

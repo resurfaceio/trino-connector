@@ -10,8 +10,8 @@ import java.util.Map;
 @AccumulatorStateMetadata(stateFactoryClass = HistosumStateFactory.class, stateSerializerClass = HistosumStateSerializer.class)
 public interface HistosumState extends AccumulatorState {
 
-    Map<String, Object> getMap();
+    Map<String, Double> getMap();
 
-    void setMap(Map<String, Object> value);
+    void setMap(Map<String, Double> value);
 
 }

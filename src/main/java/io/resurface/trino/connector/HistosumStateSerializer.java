@@ -25,7 +25,7 @@ public class HistosumStateSerializer implements AccumulatorStateSerializer<Histo
     public void deserialize(Block block, int index, HistosumState state) {
         Slice slice = VARCHAR.getSlice(block, index);
         try {
-            state.setMap(new LinkedHashMap<>(OBJECT_MAPPER.readValue(slice.getBytes(), new TypeReference<LinkedHashMap<String, Object>>() {})));
+            state.setMap(new LinkedHashMap<>(OBJECT_MAPPER.readValue(slice.getBytes(), new TypeReference<LinkedHashMap<String, Double>>() {})));
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
@@ -45,7 +45,7 @@ public class HistosumStateSerializer implements AccumulatorStateSerializer<Histo
         }
     }
 
-    public static String toJSON(Map<String, Object> map) {
+    public static String toJSON(Map<String, Double> map) {
         return map.keySet()
                 .stream()
                 .map(key -> String.format("\"%s\":%s", key, map.get(key)))
