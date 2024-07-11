@@ -4,6 +4,7 @@ package io.resurface.trino.connector;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import io.airlift.json.ObjectMapperProvider;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
@@ -15,7 +16,6 @@ import io.trino.spi.type.Type;
 import java.io.IOException;
 import java.util.LinkedHashMap;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 import static io.trino.spi.type.VarcharType.VARCHAR;
 
@@ -46,10 +46,13 @@ public class HistosumStateSerializer implements AccumulatorStateSerializer<Histo
     }
 
     public static String toJSON(Map<String, Double> map) {
-        return map.keySet()
-                .stream()
-                .map(key -> String.format("\"%s\":%s", key, map.get(key)))
-                .collect(Collectors.joining(", ", "{", "}"));
+        try {
+            ObjectNode node = OBJECT_MAPPER.createObjectNode();
+            for (Map.Entry<String, Double> e : map.entrySet()) node.put(e.getKey(), e.getValue());
+            return OBJECT_MAPPER.writeValueAsString(node);
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private static final ObjectMapper OBJECT_MAPPER = new ObjectMapperProvider().get();
