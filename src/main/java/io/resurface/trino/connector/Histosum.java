@@ -4,13 +4,14 @@ package io.resurface.trino.connector;
 
 import io.airlift.slice.Slice;
 import io.trino.spi.block.BlockBuilder;
+import io.trino.spi.block.MapBlockBuilder;
 import io.trino.spi.function.*;
 import io.trino.spi.type.StandardTypes;
 
 import java.util.LinkedHashMap;
 import java.util.Map;
 
-import static io.resurface.trino.connector.HistosumStateSerializer.toJSON;
+import static io.trino.spi.type.DoubleType.DOUBLE;
 import static io.trino.spi.type.VarcharType.VARCHAR;
 
 @AggregationFunction("histosum")
@@ -48,13 +49,16 @@ public final class Histosum {
         }
     }
 
-    @OutputFunction(StandardTypes.VARCHAR)
+    @OutputFunction("map(varchar,double)")
     public static void output(@AggregationState HistosumState state, BlockBuilder out) {
         Map<String, Double> m = state.getMap();
         if (m == null) {
             out.appendNull();
         } else {
-            VARCHAR.writeString(out, toJSON(m));
+            ((MapBlockBuilder) out).buildEntry((keyBuilder, valueBuilder) -> state.getMap().forEach((key, value) -> {
+                VARCHAR.writeString(keyBuilder, key);
+                DOUBLE.writeDouble(valueBuilder, value);
+            }));
         }
     }
 
