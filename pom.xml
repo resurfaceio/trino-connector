@@ -131,12 +131,6 @@
             <version>1.38.0</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>io.trino</groupId>
-            <artifactId>trino-array</artifactId>
-            <version>451</version>
-            <scope>compile</scope>
-        </dependency>
 
         <!-- for testing -->
         <dependency>

@@ -2,10 +2,10 @@
 
 package io.resurface.trino.connector;
 
-import io.trino.array.ObjectBigArray;
 import io.trino.spi.function.AccumulatorStateFactory;
 import io.trino.spi.function.GroupedAccumulatorState;
 
+import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -26,11 +26,11 @@ public class HistosumStateFactory implements AccumulatorStateFactory<HistosumSta
     public static class GroupedHistosumState implements GroupedAccumulatorState, HistosumState {
 
         public GroupedHistosumState() {
-            this.maps = new ObjectBigArray<>();
+            this.maps = new ArrayList<>();
         }
 
-        private final ObjectBigArray<Map<String, Double>> maps;
-        private long groupId;
+        private final ArrayList<Map<String, Double>> maps;
+        private int groupId;
 
         @Override
         public void setGroupId(int groupId) {
@@ -44,7 +44,7 @@ public class HistosumStateFactory implements AccumulatorStateFactory<HistosumSta
 
         @Override
         public long getEstimatedSize() {
-            return maps.sizeOf();
+            return maps.size();
         }
 
         @Override
@@ -53,9 +53,9 @@ public class HistosumStateFactory implements AccumulatorStateFactory<HistosumSta
         }
 
         @Override
-        public void setMap(Map<String, Double> newMap) {
+        public void setMap(Map<String, Double> m) {
             maps.ensureCapacity(groupId);
-            maps.set(groupId, newMap);
+            maps.set(groupId, m);
         }
 
     }
@@ -63,28 +63,24 @@ public class HistosumStateFactory implements AccumulatorStateFactory<HistosumSta
     public static class SingleHistosumState implements HistosumState {
 
         public SingleHistosumState() {
-            this.stateMap = new LinkedHashMap<>();
+            this.map = new LinkedHashMap<>();
         }
 
-        private Map<String, Double> stateMap;
+        private Map<String, Double> map;
 
         @Override
         public Map<String, Double> getMap() {
-            return stateMap;
+            return map;
         }
 
         @Override
-        public void setMap(Map<String, Double> newMap) {
-            this.stateMap = newMap;
+        public void setMap(Map<String, Double> m) {
+            this.map = m;
         }
 
         @Override
         public long getEstimatedSize() {
-            if (this.stateMap != null) {
-                return this.stateMap.size();
-            } else {
-                return 0L;
-            }
+            return map == null ? 0L : map.size();
         }
 
     }
