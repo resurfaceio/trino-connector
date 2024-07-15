@@ -22,8 +22,8 @@ public final class Histosum {
 
     @InputFunction
     public static void input(@AggregationState HistosumState state, @SqlType(StandardTypes.VARCHAR) Slice key, @SqlType(StandardTypes.DOUBLE) double value) {
-        Map<String, Double> m = state.getMap();
         String k = key.toStringUtf8();
+        Map<String, Double> m = state.getMap();
 
         if (m == null) {
             LinkedHashMap<String, Double> seed = new LinkedHashMap<>();
@@ -39,7 +39,7 @@ public final class Histosum {
         Map<String, Double> m1 = s1.getMap();
         Map<String, Double> m2 = s2.getMap();
 
-        if (m1 != null && m2 != null) {
+        if ((m1 != null) && (m2 != null)) {
             for (Map.Entry<String, Double> e : m2.entrySet()) {
                 String k = e.getKey();
                 m1.put(k, e.getValue() + m1.getOrDefault(k, 0.0));
@@ -52,6 +52,7 @@ public final class Histosum {
     @OutputFunction("map(varchar,double)")
     public static void output(@AggregationState HistosumState state, BlockBuilder out) {
         Map<String, Double> m = state.getMap();
+
         if (m == null) {
             out.appendNull();
         } else {

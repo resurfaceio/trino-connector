@@ -18,6 +18,31 @@ public class HistosumStateFactory implements AccumulatorStateFactory<HistosumSta
         return new SingleHistosumState();
     }
 
+    public static class SingleHistosumState implements HistosumState {
+
+        public SingleHistosumState() {
+            this.map = new LinkedHashMap<>();
+        }
+
+        private Map<String, Double> map;
+
+        @Override
+        public long getEstimatedSize() {
+            return map == null ? 0L : map.size();
+        }
+
+        @Override
+        public Map<String, Double> getMap() {
+            return map;
+        }
+
+        @Override
+        public void setMap(Map<String, Double> m) {
+            this.map = m;
+        }
+
+    }
+
     @Override
     public HistosumState createGroupedState() {
         return new GroupedHistosumState();
@@ -29,13 +54,8 @@ public class HistosumStateFactory implements AccumulatorStateFactory<HistosumSta
             this.maps = new ArrayList<>();
         }
 
-        private final ArrayList<Map<String, Double>> maps;
         private int groupId;
-
-        @Override
-        public void setGroupId(int groupId) {
-            this.groupId = groupId;
-        }
+        private final ArrayList<Map<String, Double>> maps;
 
         @Override
         public void ensureCapacity(int size) {
@@ -53,34 +73,14 @@ public class HistosumStateFactory implements AccumulatorStateFactory<HistosumSta
         }
 
         @Override
+        public void setGroupId(int groupId) {
+            this.groupId = groupId;
+        }
+
+        @Override
         public void setMap(Map<String, Double> m) {
             maps.ensureCapacity(groupId);
             maps.set(groupId, m);
-        }
-
-    }
-
-    public static class SingleHistosumState implements HistosumState {
-
-        public SingleHistosumState() {
-            this.map = new LinkedHashMap<>();
-        }
-
-        private Map<String, Double> map;
-
-        @Override
-        public Map<String, Double> getMap() {
-            return map;
-        }
-
-        @Override
-        public void setMap(Map<String, Double> m) {
-            this.map = m;
-        }
-
-        @Override
-        public long getEstimatedSize() {
-            return map == null ? 0L : map.size();
         }
 
     }
