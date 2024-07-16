@@ -4,8 +4,8 @@ package io.resurface.trino.connector;
 
 import io.trino.spi.function.AccumulatorStateFactory;
 import io.trino.spi.function.GroupedAccumulatorState;
+import it.unimi.dsi.fastutil.objects.ObjectArrayList;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -51,15 +51,15 @@ public class HistosumStateFactory implements AccumulatorStateFactory<HistosumSta
     public static class GroupedHistosumState implements GroupedAccumulatorState, HistosumState {
 
         public GroupedHistosumState() {
-            this.maps = new ArrayList<>();
+            this.maps = new ObjectArrayList<>();
         }
 
         private int groupId;
-        private final ArrayList<Map<String, Double>> maps;
+        private final ObjectArrayList<Map<String, Double>> maps;
 
         @Override
         public void ensureCapacity(int size) {
-            maps.ensureCapacity(size);
+            maps.size(size);
         }
 
         @Override
@@ -79,7 +79,6 @@ public class HistosumStateFactory implements AccumulatorStateFactory<HistosumSta
 
         @Override
         public void setMap(Map<String, Double> m) {
-            maps.ensureCapacity(groupId);
             maps.set(groupId, m);
         }
 
