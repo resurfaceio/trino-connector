@@ -12,13 +12,12 @@ This connector can be configured for parallel splits, where multiple binary file
 
 ## Usage
 
-This connector is included with the Resurface database, but can be installed
-into any Trino 407+ distribution.
+This connector is included with the Resurface database, but can be installed into any Trino distribution.
 
 ## Dependencies
 
 * Java 22
-* Trino SPI
+* Trino 452
 * [resurfaceio/binfiles](https://github.com/resurfaceio/binfiles)
 
 ## Configuring Local Environment
