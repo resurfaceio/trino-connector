@@ -31,7 +31,7 @@ export TRINO_HOME=$HOME/...
 connector.name=resurface
 
 3. Build the connector and redeploy
-mvn clean package && rm -rf $TRINO_HOME/plugin/resurface && cp -r ./target/resurfaceio-trino-connector-3.6.25 $TRINO_HOME/plugin/resurface
+mvn clean package && rm -rf $TRINO_HOME/plugin/resurface && cp -r ./target/resurfaceio-trino-connector-3.6.26 $TRINO_HOME/plugin/resurface
 
 4. Start Trino
 cd $TRINO_HOME
