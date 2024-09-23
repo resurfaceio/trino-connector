@@ -65,7 +65,7 @@ public class ResurfaceMetadata implements ConnectorMetadata {
             return Optional.empty();
         } else {
             handle = new ResurfaceTableHandle(handle.getSchemaTableName(), newDomain);
-            return Optional.of(new ConstraintApplicationResult<>(handle, constraint.getSummary(), false));
+            return Optional.of(new ConstraintApplicationResult<>(handle, constraint.getSummary(), constraint.getExpression(), false));
         }
     }
 
@@ -153,7 +153,7 @@ public class ResurfaceMetadata implements ConnectorMetadata {
     }
 
     @Override
-    public synchronized void createView(ConnectorSession session, SchemaTableName viewName, ConnectorViewDefinition definition, boolean replace) {
+    public synchronized void createView(ConnectorSession session, SchemaTableName viewName, ConnectorViewDefinition definition, Map<String, Object> viewProperties, boolean replace) {
         if (tables.getViewsDir() == null)
             throw new TrinoException(CONFIGURATION_INVALID, "Not configured for persistent views");
 

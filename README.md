@@ -17,7 +17,7 @@ This connector is included with the Resurface database, but can be installed int
 ## Dependencies
 
 * Java 22
-* Trino 454
+* Trino 458
 * [resurfaceio/binfiles](https://github.com/resurfaceio/binfiles)
 
 ## Configuring Local Environment

@@ -62,17 +62,17 @@
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>bootstrap</artifactId>
-            <version>260</version>
+            <version>268</version>
         </dependency>
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>configuration</artifactId>
-            <version>260</version>
+            <version>268</version>
         </dependency>
         <dependency>
             <groupId>io.airlift</groupId>
             <artifactId>json</artifactId>
-            <version>260</version>
+            <version>268</version>
         </dependency>
         <dependency>
             <groupId>com.google.inject</groupId>
@@ -104,7 +104,7 @@
         <dependency>
             <groupId>io.trino</groupId>
             <artifactId>trino-spi</artifactId>
-            <version>454</version>
+            <version>458</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -122,13 +122,13 @@
         <dependency>
             <groupId>io.opentelemetry</groupId>
             <artifactId>opentelemetry-api</artifactId>
-            <version>1.40.0</version>
+            <version>1.42.1</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.opentelemetry</groupId>
             <artifactId>opentelemetry-context</artifactId>
-            <version>1.40.0</version>
+            <version>1.42.1</version>
             <scope>provided</scope>
         </dependency>
 
@@ -136,13 +136,13 @@
         <dependency>
             <groupId>io.trino</groupId>
             <artifactId>trino-main</artifactId>
-            <version>454</version>
+            <version>458</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.trino</groupId>
             <artifactId>trino-testing</artifactId>
-            <version>454</version>
+            <version>458</version>
             <scope>test</scope>
         </dependency>
         <dependency>

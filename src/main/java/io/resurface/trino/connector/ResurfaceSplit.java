@@ -36,11 +36,6 @@ public class ResurfaceSplit implements ConnectorSplit {
         return ImmutableList.of(address);
     }
 
-    @Override
-    public Object getInfo() {
-        return this;
-    }
-
     @JsonProperty("node_id")
     public String getNodeId() {
         return node_id;
