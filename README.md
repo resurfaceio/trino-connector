@@ -7,8 +7,8 @@ definitions, virtual column definitions, helpful custom functions, and managemen
 This connector can be configured for parallel splits, where multiple binary files are read in parallel for best performance.
 
 [![CodeFactor](https://www.codefactor.io/repository/github/resurfaceio/trino-connector/badge)](https://www.codefactor.io/repository/github/resurfaceio/trino-connector)
-[![License](https://img.shields.io/github/license/resurfaceio/trino-connector)](https://github.com/resurfaceio/trino-connector/blob/v3.6.x/LICENSE)
-[![Contributing](https://img.shields.io/badge/contributions-welcome-green.svg)](https://github.com/resurfaceio/trino-connector/blob/v3.6.x/CONTRIBUTING.md)
+[![License](https://img.shields.io/github/license/resurfaceio/trino-connector)](https://github.com/resurfaceio/trino-connector/blob/v3.7.x/LICENSE)
+[![Contributing](https://img.shields.io/badge/contributions-welcome-green.svg)](https://github.com/resurfaceio/trino-connector/blob/v3.7.x/CONTRIBUTING.md)
 
 ## Usage
 
@@ -31,7 +31,7 @@ export TRINO_HOME=$HOME/...
 connector.name=resurface
 
 3. Build the connector and redeploy
-mvn clean package && rm -rf $TRINO_HOME/plugin/resurface && cp -r ./target/resurfaceio-trino-connector-3.6.29 $TRINO_HOME/plugin/resurface
+mvn clean package && rm -rf $TRINO_HOME/plugin/resurface && cp -r ./target/resurfaceio-trino-connector-3.7.1 $TRINO_HOME/plugin/resurface
 
 4. Start Trino
 cd $TRINO_HOME
