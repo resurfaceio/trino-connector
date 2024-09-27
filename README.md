@@ -17,7 +17,7 @@ This connector is included with the Resurface database, but can be installed int
 ## Dependencies
 
 * Java 23
-* Trino 459
+* Trino 448
 * [resurfaceio/binfiles](https://github.com/resurfaceio/binfiles)
 
 ## Configuring Local Environment
@@ -31,7 +31,7 @@ export TRINO_HOME=$HOME/...
 connector.name=resurface
 
 3. Build the connector and redeploy
-mvn clean package && rm -rf $TRINO_HOME/plugin/resurface && cp -r ./target/resurfaceio-trino-connector-3.6.29 $TRINO_HOME/plugin/resurface
+mvn clean package && rm -rf $TRINO_HOME/plugin/resurface && cp -r ./target/resurfaceio-trino-connector-3.6.30 $TRINO_HOME/plugin/resurface
 
 4. Start Trino
 cd $TRINO_HOME
