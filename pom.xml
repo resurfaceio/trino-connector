@@ -92,7 +92,7 @@
         <dependency>
             <groupId>it.unimi.dsi</groupId>
             <artifactId>fastutil</artifactId>
-            <version>8.5.14</version>
+            <version>8.5.15</version>
         </dependency>
         <dependency>
             <groupId>org.lz4</groupId>
@@ -104,7 +104,7 @@
         <dependency>
             <groupId>io.trino</groupId>
             <artifactId>trino-spi</artifactId>
-            <version>462</version>
+            <version>463</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
@@ -136,13 +136,13 @@
         <dependency>
             <groupId>io.trino</groupId>
             <artifactId>trino-main</artifactId>
-            <version>462</version>
+            <version>463</version>
             <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>io.trino</groupId>
             <artifactId>trino-testing</artifactId>
-            <version>462</version>
+            <version>463</version>
             <scope>test</scope>
         </dependency>
         <dependency>
