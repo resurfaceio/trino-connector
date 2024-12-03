@@ -21,7 +21,7 @@ because CloudSmith is awesome and **free** for open-source projects.
 ## Dependencies
 
 * Java 23
-* Trino 464
+* Trino 466
 * [resurfaceio/binfiles](https://github.com/resurfaceio/binfiles)
 
 ## Configuring Local Environment
