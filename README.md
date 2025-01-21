@@ -1,7 +1,8 @@
 # resurfaceio-trino-connector
 Custom connector for Trino
 
-This open source Java library allows [Trino](https://trino.io) to run [SQL queries](https://resurface.io/docs#sql-reference)
+This open source Java library allows [Trino](https://trino.io) to run
+[SQL queries](https://go2docs.graylog.org/apisecurity-current/sql_reference/sql_reference.htm)
 against [Resurface binary files](https://github.com/resurfaceio/binfiles). This connector provides table and column
 definitions, virtual column definitions, helpful custom functions, and management for persistent and volatile views.
 This connector can be configured for parallel splits, where multiple binary files are read in parallel for best performance.
