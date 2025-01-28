@@ -6,7 +6,6 @@ import io.airlift.log.Logger;
 import io.airlift.slice.Slice;
 import io.airlift.slice.Slices;
 import io.resurface.binfiles.CompressedHttpMessage;
-import io.resurface.binfiles.PersistentHttpMessage;
 import io.resurface.binfiles.PersistentHttpMessageString;
 import io.trino.spi.connector.RecordCursor;
 import io.trino.spi.type.Type;
@@ -38,7 +37,7 @@ public class MessageRecordCursor implements RecordCursor {
     private final Type[] column_types;
     private final Iterator<File> files;
     private final Logger log = Logger.get(MessageRecordCursor.class);
-    private PersistentHttpMessage message;
+    private CompressedHttpMessage message;
     private Slice shard_file;
     private FastBufferedInputStream stream;
 
@@ -169,6 +168,10 @@ public class MessageRecordCursor implements RecordCursor {
                 return message.response_body.length();
             case 56: // v3.6
                 return message.response_headers.length();
+            case 58: // v3.7
+                return message.request_pii_tokens_count.value();
+            case 60: // v3.7
+                return message.response_pii_tokens_count.value();
             default:
                 throw new IllegalArgumentException("Cannot get as long: " + column_names[field]);
         }
@@ -237,6 +240,10 @@ public class MessageRecordCursor implements RecordCursor {
                 return Slices.EMPTY_SLICE;
             case 49: // v3.5
                 return shard_file;
+            case 57: // v3.7
+                return getSliceFromField(message.request_pii_tokens);
+            case 59: // v3.7
+                return getSliceFromField(message.response_pii_tokens);
             default:
                 throw new IllegalArgumentException("Cannot get as string: " + column_names[field]);
         }
@@ -273,6 +280,8 @@ public class MessageRecordCursor implements RecordCursor {
                     + "\nmessage.request_address.length=" + message.request_address.length()
                     + "\nmessage.session_fields.length=" + message.session_fields.length()
                     + "\nmessage.cookies.length=" + message.cookies.length()
+                    + "\nmessage.request_pii_tokens.length=" + message.request_pii_tokens.length()
+                    + "\nmessage.response_pii_tokens.length=" + message.response_pii_tokens.length()
                     + "\nmessage.id.offset=" + message.id.offset()
                     + "\nmessage.agent_category.offset=" + message.agent_category.offset()
                     + "\nmessage.agent_device.offset=" + message.agent_device.offset()
@@ -295,7 +304,9 @@ public class MessageRecordCursor implements RecordCursor {
                     + "\nmessage.custom_fields.offset=" + message.custom_fields.offset()
                     + "\nmessage.request_address.offset=" + message.request_address.offset()
                     + "\nmessage.session_fields.offset=" + message.session_fields.offset()
-                    + "\nmessage.cookies.offset=" + message.cookies.offset());
+                    + "\nmessage.cookies.offset=" + message.cookies.offset()
+                    + "\nmessage.request_pii_tokens.offset=" + message.request_pii_tokens.offset()
+                    + "\nmessage.response_pii_tokens.offset=" + message.response_pii_tokens.offset());
             return Slices.EMPTY_SLICE;
         }
     }
@@ -422,6 +433,14 @@ public class MessageRecordCursor implements RecordCursor {
                 return false;  // size_response_body_bytes
             case 56: // v3.6
                 return false;  // size_response_headers_bytes
+            case 57: // v3.7
+                return message.request_pii_tokens.isNull();
+            case 58: // v3.7
+                return false;  // request_pii_tokens_count
+            case 59: // v3.7
+                return message.response_pii_tokens.isNull();
+            case 60: // v3.7
+                return false;  // response_pii_tokens_count
             default:
                 throw new IllegalArgumentException("Invalid field index: " + field);
         }

@@ -152,7 +152,11 @@ public class ResurfaceTables {
                 new ColumnMetadata("size_request_params_bytes", INTEGER),                          // 53 (v3.6)
                 new ColumnMetadata("size_request_url_bytes", INTEGER),                             // 54 (v3.6)
                 new ColumnMetadata("size_response_body_bytes", INTEGER),                           // 55 (v3.6)
-                new ColumnMetadata("size_response_headers_bytes", INTEGER)                         // 56 (v3.6)
+                new ColumnMetadata("size_response_headers_bytes", INTEGER),                        // 56 (v3.6)
+                new ColumnMetadata("request_pii_tokens", createUnboundedVarcharType()),            // 57 (v3.7)
+                new ColumnMetadata("request_pii_tokens_count", INTEGER),                           // 58 (v3.7)
+                new ColumnMetadata("response_pii_tokens", createUnboundedVarcharType()),           // 59 (v3.7)
+                new ColumnMetadata("response_pii_tokens_count", INTEGER)                           // 60 (v3.7)
         );
 
         public static final ColumnHandle SHARD_FILE = new ResurfaceColumnHandle("shard_file", createUnboundedVarcharType(), 49);

@@ -92,6 +92,10 @@ public class TestResurfaceRecordSet {
             assertEquals(cursor.getLong(54), 16);                                                       // 54 (v3.6)
             assertEquals(cursor.getLong(55), 18);                                                       // 55 (v3.6)
             assertEquals(cursor.getLong(56), 21);                                                       // 56 (v3.6)
+            assertEquals(cursor.getSlice(57).toStringUtf8(), "request_pii_tokens 😀");                  // 57 (v3.7)
+            assertEquals(cursor.getLong(58), 78);                                                       // 58 (v3.7)
+            assertEquals(cursor.getSlice(59).toStringUtf8(), "response_pii_tokens 😀");                 // 59 (v3.7)
+            assertEquals(cursor.getLong(60), 89);                                                       // 60 (v3.7)
             assertTrue(cursor.advanceNextPosition());
             assertEquals(cursor.getSlice(0).toStringUtf8(), "id2");
 
